@@ -44,20 +44,20 @@ func (e EbmlSpec) GetSpecification() Ebml {
 	xmlFile, err := os.Open(specificationFile)
 
 	if err != nil {
-		log.Panicf("Failed to open specification -- '%+v'", err)
+		log.Panicf("Failed to open specification. -- '%+v'", err)
 	}
 
 	defer xmlFile.Close()
 
-	rawValue, err := ioutil.ReadAll(xmlFile)
-
-	if err != nil {
-		log.Fatal("Failed to parse the specification xml.")
-	}
+	rawValue, _ := ioutil.ReadAll(xmlFile)
 
 	var ebml Ebml
 
-	xml.Unmarshal(rawValue, &ebml)
+	err = xml.Unmarshal(rawValue, &ebml)
+
+	if err != nil {
+		log.Panicf("Failed to parse the specification xml. -- '%+v'", err)
+	}
 
 	return ebml
 }

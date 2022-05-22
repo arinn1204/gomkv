@@ -1,0 +1,3 @@
+<EBMLSchema xmlns="urn:ietf:rfc:8794" docType="matroska" version="4">
+  <element name="EBMLMaxIDLength" path="\EBML\EBMLMaxIDLength" id="0x42F2" type="uinteger" range="4" default="4" minOccurs="1" maxOccurs="1"/>
+</EBMLSchema

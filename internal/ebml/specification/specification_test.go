@@ -2,6 +2,7 @@ package specification
 
 import (
 	"encoding/xml"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -67,10 +68,34 @@ func TestWillPanicIfFileNotFound(t *testing.T) {
 	specificationFile = "testdata/notFound.xml"
 
 	defer func() {
-		err := recover()
-		if err == nil {
+		err := recover().(string)
+		if err == "" {
 			assert.Fail(t, "Expected panic when %v was not found.", specificationFile)
 		}
+
+		pattern := "Failed to open specification. -- .*"
+		match, _ := regexp.Match(pattern, []byte(err))
+
+		assert.True(t, match, "Failed to match the pattern -- '%v'. Found '%v", pattern, err)
+	}()
+
+	spec.GetSpecification()
+}
+
+func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
+	specificationFile = "testdata/badXml.xml"
+
+	defer func() {
+		err := recover().(string)
+		if err == "" {
+			assert.Fail(t, "Expected panic but not found.", specificationFile)
+		}
+
+		pattern := "Failed to parse the specification xml. -- .*"
+		match, _ := regexp.Match(pattern, []byte(err))
+
+		assert.True(t, match, "Failed to match the pattern -- '%v'. But found %v", pattern, err)
+
 	}()
 
 	spec.GetSpecification()
