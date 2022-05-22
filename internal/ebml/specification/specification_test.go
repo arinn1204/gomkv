@@ -7,6 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func init() {
+	specificationFile = "testdata/basicEbml.xml"
+}
+
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 	spec := getSpecification()
 
@@ -23,7 +27,6 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 }
 
 func TestCanSerializeEbmlElements(t *testing.T) {
-	specificationFile = "testdata/basicEbml.xml"
 	spec := getSpecification()
 
 	ebml := Ebml{
