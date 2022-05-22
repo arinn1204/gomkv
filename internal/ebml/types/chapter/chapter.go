@@ -2,11 +2,7 @@ package chapter
 
 import "github.com/google/uuid"
 
-type Chapter struct {
-	Entries []EditionEntry
-}
-
-type EditionEntry struct {
+type Entry struct {
 	uid         uint
 	flagHidden  uint
 	flagDefault uint

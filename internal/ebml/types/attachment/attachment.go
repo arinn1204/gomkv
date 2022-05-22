@@ -7,8 +7,3 @@ type AttachedFile struct {
 	uid  uint
 	data []byte
 }
-
-//ebml defines a single attachement with many files
-type Attachment struct {
-	files []AttachedFile
-}

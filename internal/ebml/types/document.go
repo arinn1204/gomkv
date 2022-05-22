@@ -7,9 +7,9 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/cue"
 	"github.com/arinn1204/gomkv/internal/ebml/types/info"
 	"github.com/arinn1204/gomkv/internal/ebml/types/seekhead"
+	"github.com/arinn1204/gomkv/internal/ebml/types/tag"
 )
 
-type Tag struct{}
 type Track struct{}
 
 type Document struct {
@@ -18,14 +18,14 @@ type Document struct {
 }
 
 type Segment struct {
-	cue        cue.Cue
-	tracks     []Track
-	tags       []Tag
-	attachment attachment.Attachment
-	chapter    chapter.Chapter
-	seekHeads  []seekhead.SeekHead
-	infos      []info.Info
-	clusters   []cluster.Cluster
+	points    []cue.Point
+	tracks    []Track
+	tags      []tag.Tag
+	files     []attachment.AttachedFile
+	chapters  []chapter.Entry
+	seekHeads []seekhead.SeekHead
+	infos     []info.Info
+	clusters  []cluster.Cluster
 }
 
 type Header struct {
