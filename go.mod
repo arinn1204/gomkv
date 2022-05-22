@@ -1,4 +1,4 @@
-module github.com/arinn/gomkv
+module github.com/arinn1204/gomkv
 
 go 1.18
 

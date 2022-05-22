@@ -1,4 +1,4 @@
-package types
+package attachment
 
 type AttachedFile struct {
 	desc string
