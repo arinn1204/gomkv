@@ -5,9 +5,9 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/chapter"
 	"github.com/arinn1204/gomkv/internal/ebml/types/cluster"
 	"github.com/arinn1204/gomkv/internal/ebml/types/cue"
+	"github.com/arinn1204/gomkv/internal/ebml/types/info"
 )
 
-type Info struct{}
 type SeekHead struct{}
 type Tag struct{}
 type Track struct{}
@@ -24,7 +24,7 @@ type Segment struct {
 	attachment attachment.Attachment
 	chapter    chapter.Chapter
 	seekHeads  []SeekHead
-	infos      []Info
+	infos      []info.Info
 	clusters   []cluster.Cluster
 }
 
