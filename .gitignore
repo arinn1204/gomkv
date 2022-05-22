@@ -22,4 +22,6 @@ gomkv
 vendor/
 
 # Go workspace file
-go.work.vscode
+go.work
+
+.vscode/
