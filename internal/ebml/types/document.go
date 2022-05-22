@@ -4,16 +4,21 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/attachment"
 	"github.com/arinn1204/gomkv/internal/ebml/types/chapter"
 	"github.com/arinn1204/gomkv/internal/ebml/types/cluster"
+	"github.com/arinn1204/gomkv/internal/ebml/types/cue"
 )
 
-type Cue struct{}
 type Info struct{}
 type SeekHead struct{}
 type Tag struct{}
 type Track struct{}
 
+type Document struct {
+	header   Header
+	segments []Segment
+}
+
 type Segment struct {
-	cue        Cue
+	cue        cue.Cue
 	tracks     []Track
 	tags       []Tag
 	attachment attachment.Attachment
@@ -28,9 +33,4 @@ type Header struct {
 	maxSizeLength int
 	docType       string
 	version       int
-}
-
-type Document struct {
-	header   Header
-	segments []Segment
 }
