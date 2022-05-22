@@ -8,8 +8,10 @@ import (
 )
 
 type Ebml struct {
-	XMLName  xml.Name  `xml:"EBMLSchema"`
-	Elements []Element `xml:"element"`
+	XMLName      xml.Name  `xml:"EBMLSchema"`
+	DocumentType string    `xml:"docType,attr"`
+	Version      int       `xml:"version,attr"`
+	Elements     []Element `xml:"element"`
 }
 
 type Element struct {
