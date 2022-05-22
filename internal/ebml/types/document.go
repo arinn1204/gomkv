@@ -11,11 +11,13 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/track"
 )
 
+//Document is the overarching document structure for an EBML doc
 type Document struct {
 	header   Header
 	segments []Segment
 }
 
+//Segment contains all the information about the individual EBML segments
 type Segment struct {
 	points    []cue.Point
 	tracks    []track.Track
@@ -27,6 +29,7 @@ type Segment struct {
 	clusters  []cluster.Cluster
 }
 
+//Header contains metadata about the document
 type Header struct {
 	maxIDLength   int
 	maxSizeLength int
