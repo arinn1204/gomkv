@@ -3,9 +3,9 @@ package types
 import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/attachment"
 	"github.com/arinn1204/gomkv/internal/ebml/types/chapter"
+	"github.com/arinn1204/gomkv/internal/ebml/types/cluster"
 )
 
-type Cluster struct{}
 type Cue struct{}
 type Info struct{}
 type SeekHead struct{}
@@ -20,7 +20,7 @@ type Segment struct {
 	chapter    chapter.Chapter
 	seekHeads  []SeekHead
 	infos      []Info
-	clusters   []Cluster
+	clusters   []cluster.Cluster
 }
 
 type Header struct {
