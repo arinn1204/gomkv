@@ -26,13 +26,18 @@ type Element struct {
 	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
 
+type EbmlSepecification interface {
+	GetSpecification() Ebml
+}
+
 var specificationFile string
 
 func init() {
 	specificationFile = "data/matroska_ebml.xml"
+
 }
 
-func getSpecification() Ebml {
+func GetSpecification() Ebml {
 	xmlFile, err := os.Open(specificationFile)
 
 	if err != nil {

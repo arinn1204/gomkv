@@ -12,7 +12,7 @@ func init() {
 }
 
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
-	spec := getSpecification()
+	spec := GetSpecification()
 
 	ebml := Ebml{
 		XMLName: xml.Name{
@@ -27,7 +27,7 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 }
 
 func TestCanSerializeEbmlElements(t *testing.T) {
-	spec := getSpecification()
+	spec := GetSpecification()
 
 	ebml := Ebml{
 		XMLName: xml.Name{
@@ -56,4 +56,8 @@ func TestCanSerializeEbmlElements(t *testing.T) {
 		received := spec.Elements[index]
 		assert.Equal(t, element, received)
 	}
+}
+
+func TestWillPanicIfFileNotFound() {
+	specificationFile = "testdata/notFound.xml"
 }
