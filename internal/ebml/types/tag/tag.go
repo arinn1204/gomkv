@@ -1,10 +1,13 @@
 package tag
 
+//Tag is a metadata descriptor
 type Tag struct {
 	target Target
 	tags   []SimpleTag
 }
 
+//Target describes what element the tag is describing
+//If target is empty then it applies to the whole segment
 type Target struct {
 	logicalLevelValue uint
 	logicalLevel      uint
@@ -14,6 +17,7 @@ type Target struct {
 	attachementUids   []uint
 }
 
+//SimpleTag contains general information about the target
 type SimpleTag struct {
 	child          *SimpleTag
 	name           string
