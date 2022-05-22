@@ -65,4 +65,13 @@ func TestCanSerializeEbmlElements(t *testing.T) {
 
 func TestWillPanicIfFileNotFound(t *testing.T) {
 	specificationFile = "testdata/notFound.xml"
+
+	defer func() {
+		err := recover()
+		if err == nil {
+			assert.Fail(t, "Expected panic when %v was not found.", specificationFile)
+		}
+	}()
+
+	spec.GetSpecification()
 }

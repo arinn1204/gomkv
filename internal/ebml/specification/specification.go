@@ -44,7 +44,7 @@ func (e EbmlSpec) GetSpecification() Ebml {
 	xmlFile, err := os.Open(specificationFile)
 
 	if err != nil {
-		log.Fatal("Failed to open specification.")
+		log.Panicf("Failed to open specification -- '%+v'", err)
 	}
 
 	defer xmlFile.Close()
