@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+//Ebml is the overarching xml element name
 type Ebml struct {
 	XMLName      xml.Name  `xml:"EBMLSchema"`
 	DocumentType string    `xml:"docType,attr"`
@@ -14,6 +15,7 @@ type Ebml struct {
 	Elements     []Element `xml:"element"`
 }
 
+//Element is the xml element that each piece of hte specification is defined within
 type Element struct {
 	XMLName           xml.Name `xml:"element"`
 	Name              string   `xml:"name,attr"`
@@ -26,10 +28,12 @@ type Element struct {
 	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
 
+//EbmlSepecification is the interface that the specification module adheres to
 type EbmlSepecification interface {
 	GetSpecification() Ebml
 }
 
+//EbmlSpec is the struct implementing the modules interface
 type EbmlSpec struct{}
 
 var ebmlSpec EbmlSepecification
@@ -40,6 +44,7 @@ func init() {
 	ebmlSpec = EbmlSpec{}
 }
 
+//GetSpecification will return a formatted form of the EBML specification
 func (e EbmlSpec) GetSpecification() Ebml {
 	xmlFile, err := os.Open(specificationFile)
 
