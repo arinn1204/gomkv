@@ -30,14 +30,17 @@ type EbmlSepecification interface {
 	GetSpecification() Ebml
 }
 
+type EbmlSpec struct{}
+
+var ebmlSpec EbmlSepecification
 var specificationFile string
 
 func init() {
 	specificationFile = "data/matroska_ebml.xml"
-
+	ebmlSpec = EbmlSpec{}
 }
 
-func GetSpecification() Ebml {
+func (e EbmlSpec) GetSpecification() Ebml {
 	xmlFile, err := os.Open(specificationFile)
 
 	if err != nil {

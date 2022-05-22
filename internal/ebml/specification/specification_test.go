@@ -7,12 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var spec EbmlSepecification
+
 func init() {
-	specificationFile = "testdata/basicEbml.xml"
+	spec = EbmlSpec{}
 }
 
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
-	spec := GetSpecification()
+	specificationFile = "testdata/basicEbml.xml"
+	spec := spec.GetSpecification()
 
 	ebml := Ebml{
 		XMLName: xml.Name{
@@ -27,7 +30,9 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 }
 
 func TestCanSerializeEbmlElements(t *testing.T) {
-	spec := GetSpecification()
+	specificationFile = "testdata/basicEbml.xml"
+
+	spec := spec.GetSpecification()
 
 	ebml := Ebml{
 		XMLName: xml.Name{
@@ -58,6 +63,6 @@ func TestCanSerializeEbmlElements(t *testing.T) {
 	}
 }
 
-func TestWillPanicIfFileNotFound() {
+func TestWillPanicIfFileNotFound(t *testing.T) {
 	specificationFile = "testdata/notFound.xml"
 }
