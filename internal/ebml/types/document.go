@@ -2,9 +2,9 @@ package types
 
 import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/attachment"
+	"github.com/arinn1204/gomkv/internal/ebml/types/chapter"
 )
 
-type Chapter struct{}
 type Cluster struct{}
 type Cue struct{}
 type Info struct{}
@@ -17,7 +17,7 @@ type Segment struct {
 	tracks     []Track
 	tags       []Tag
 	attachment attachment.Attachment
-	chapter    Chapter
+	chapter    chapter.Chapter
 	seekHeads  []SeekHead
 	infos      []Info
 	clusters   []Cluster
