@@ -18,7 +18,7 @@ type Element struct {
 	XMLName           xml.Name `xml:"element"`
 	Name              string   `xml:"name,attr"`
 	Path              string   `xml:"path,attr"`
-	ID                int32    `xml:"id,attr"`
+	ID                string   `xml:"id,attr"`
 	Type              string   `xml:"type,attr"`
 	Range             string   `xml:"range,attr"`
 	Default           int      `xml:"default,attr"`

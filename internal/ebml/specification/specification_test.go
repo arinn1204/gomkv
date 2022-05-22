@@ -2,9 +2,9 @@ package specification
 
 import (
 	"encoding/xml"
-	"fmt"
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
@@ -13,14 +13,13 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 	ebml := Ebml{
 		XMLName: xml.Name{
 			Local: "EBMLSchema",
+			Space: "urn:ietf:rfc:8794",
 		},
 		DocumentType: "matroska",
 		Version:      4,
 	}
 
-	if reflect.DeepEqual(ebml.XMLName, spec.XMLName) {
-		t.Errorf("Expected '%v' but received '%v' instead.", fmt.Sprintf("%v", ebml.XMLName), fmt.Sprintf("%v", ebml.XMLName))
-	}
+	assert.Equal(t, ebml.XMLName, spec.XMLName)
 }
 
 func TestCanSerializeEbmlElements(t *testing.T) {
@@ -35,10 +34,11 @@ func TestCanSerializeEbmlElements(t *testing.T) {
 			{
 				XMLName: xml.Name{
 					Local: "element",
+					Space: "urn:ietf:rfc:8794",
 				},
 				Name:              "EBMLMaxIDLength",
 				Path:              "\\EBML\\EBMLMaxIDLength",
-				ID:                17138,
+				ID:                "0x42F2",
 				Type:              "uinteger",
 				Range:             "4",
 				Default:           4,
@@ -47,17 +47,10 @@ func TestCanSerializeEbmlElements(t *testing.T) {
 			},
 		},
 	}
-
-	if len(ebml.Elements) != len(spec.Elements) {
-		t.Errorf("Expected an array of %v elements but found %v instead.", len(ebml.Elements), len(spec.Elements))
-		t.FailNow()
-	}
+	assert.Equal(t, len(ebml.Elements), len(spec.Elements))
 
 	for index, element := range ebml.Elements {
 		received := spec.Elements[index]
-		if !reflect.DeepEqual(element, received) {
-			t.Errorf("Expected element to be %+v but was %+v", element, received)
-			t.Fail()
-		}
+		assert.Equal(t, element, received)
 	}
 }
