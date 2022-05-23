@@ -11,8 +11,8 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/types/track"
 )
 
-//Document is the overarching document structure for an EBML doc
-type Document struct {
+//EbmlDocument is the overarching document structure for an EBML doc
+type EbmlDocument struct {
 	header   Header
 	segments []Segment
 }
