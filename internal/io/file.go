@@ -8,6 +8,7 @@ type File struct {
 	file *os.File
 }
 
+//Read is a wrapper around os.File.Read
 func Read(f *File, startPos uint, buf []byte) int {
 	file := f.file
 
