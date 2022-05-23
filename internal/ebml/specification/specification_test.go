@@ -1,67 +1,38 @@
 package specification
 
 import (
-	"encoding/xml"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var spec EbmlSepecification
-
-func init() {
-	spec = EbmlSpec{}
-}
-
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 	specificationFile = "testdata/basicEbml.xml"
-	spec := spec.GetSpecification()
+	spec := GetSpecification()
 
-	ebml := Ebml{
-		XMLName: xml.Name{
-			Local: "EBMLSchema",
-			Space: "urn:ietf:rfc:8794",
-		},
-		DocumentType: "matroska",
+	ebml := EbmlData{
+		Name:              "EBMLMaxIDLength",
+		Type:              "uinteger",
+		Range:             "4",
+		Default:           4,
+		MinimumOccurances: 1,
+		MaximumOccurances: 1,
+	}
+
+	id, _ := strconv.ParseInt("0x42F2", 16, 16)
+
+	data := make(map[int64]EbmlData)
+	data[id] = ebml
+
+	ebmlStructure := Ebml{
+		Data:         data,
 		Version:      4,
+		DocumentType: "matroska",
 	}
 
-	assert.Equal(t, ebml.XMLName, spec.XMLName)
-}
-
-func TestCanSerializeEbmlElements(t *testing.T) {
-	specificationFile = "testdata/basicEbml.xml"
-
-	spec := spec.GetSpecification()
-
-	ebml := Ebml{
-		XMLName: xml.Name{
-			Local: "EBMLSchema",
-		},
-		Elements: []Element{
-			{
-				XMLName: xml.Name{
-					Local: "element",
-					Space: "urn:ietf:rfc:8794",
-				},
-				Name:              "EBMLMaxIDLength",
-				Path:              "\\EBML\\EBMLMaxIDLength",
-				ID:                "0x42F2",
-				Type:              "uinteger",
-				Range:             "4",
-				Default:           4,
-				MinimumOccurances: 1,
-				MaximumOccurances: 1,
-			},
-		},
-	}
-	assert.Equal(t, len(ebml.Elements), len(spec.Elements))
-
-	for index, element := range ebml.Elements {
-		received := spec.Elements[index]
-		assert.Equal(t, element, received)
-	}
+	assert.Equal(t, ebmlStructure, spec)
 }
 
 func TestWillPanicIfFileNotFound(t *testing.T) {
@@ -79,7 +50,7 @@ func TestWillPanicIfFileNotFound(t *testing.T) {
 		assert.True(t, match, "Failed to match the pattern -- '%v'. Found '%v", pattern, err)
 	}()
 
-	spec.GetSpecification()
+	GetSpecification()
 }
 
 func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
@@ -98,5 +69,5 @@ func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
 
 	}()
 
-	spec.GetSpecification()
+	GetSpecification()
 }
