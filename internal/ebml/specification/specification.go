@@ -5,18 +5,32 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 )
 
-//Ebml is the overarching xml element name
 type Ebml struct {
-	XMLName      xml.Name  `xml:"EBMLSchema"`
-	DocumentType string    `xml:"docType,attr"`
-	Version      int       `xml:"version,attr"`
-	Elements     []Element `xml:"element"`
+	Data         map[int64]EbmlData
+	DocumentType string
+	Version      int
 }
 
-//Element is the xml element that each piece of hte specification is defined within
-type Element struct {
+type EbmlData struct {
+	Name              string
+	Type              string
+	Range             string
+	Default           int
+	MinimumOccurances int
+	MaximumOccurances int
+}
+
+type ebmlStructure struct {
+	XMLName      xml.Name     `xml:"EBMLSchema"`
+	DocumentType string       `xml:"docType,attr"`
+	Version      int          `xml:"version,attr"`
+	Elements     []elementXml `xml:"element"`
+}
+
+type elementXml struct {
 	XMLName           xml.Name `xml:"element"`
 	Name              string   `xml:"name,attr"`
 	Path              string   `xml:"path,attr"`
@@ -28,24 +42,43 @@ type Element struct {
 	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
 
-//EbmlSepecification is the interface that the specification module adheres to
-type EbmlSepecification interface {
-	GetSpecification() Ebml
-}
-
-//EbmlSpec is the struct implementing the modules interface
-type EbmlSpec struct{}
-
-var ebmlSpec EbmlSepecification
 var specificationFile string
 
 func init() {
 	specificationFile = "data/matroska_ebml.xml"
-	ebmlSpec = EbmlSpec{}
 }
 
-//GetSpecification will return a formatted form of the EBML specification
-func (e EbmlSpec) GetSpecification() Ebml {
+//GetSpecification is a method used to read the matroska specification and return a mapped form of it that is easier to parse.
+//This form will have the structure of map[elementID]=EBMLInformation
+//The information will contain all the necessary element info: Name, Type, Range, Default, MinOccur, MaxOccur
+func GetSpecification() Ebml {
+	structure := readSpecification()
+
+	data := make(map[int64]EbmlData)
+	ebml := Ebml{
+		Version:      structure.Version,
+		DocumentType: structure.DocumentType,
+		Data:         data,
+	}
+
+	for _, element := range structure.Elements {
+		bitSize := (len(element.ID) - 2) * 4
+		id, _ := strconv.ParseInt(element.ID, 16, bitSize)
+		data[id] = EbmlData{
+			Name:              element.Name,
+			Type:              element.Type,
+			Range:             element.Range,
+			Default:           element.Default,
+			MinimumOccurances: element.MinimumOccurances,
+			MaximumOccurances: element.MaximumOccurances,
+		}
+	}
+
+	return ebml
+
+}
+
+func readSpecification() ebmlStructure {
 	xmlFile, err := os.Open(specificationFile)
 
 	if err != nil {
@@ -56,7 +89,7 @@ func (e EbmlSpec) GetSpecification() Ebml {
 
 	rawValue, _ := ioutil.ReadAll(xmlFile)
 
-	var ebml Ebml
+	var ebml ebmlStructure
 
 	err = xml.Unmarshal(rawValue, &ebml)
 
