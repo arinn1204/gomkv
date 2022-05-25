@@ -8,12 +8,17 @@ import (
 	"strconv"
 )
 
+//Ebml is the mapping of the specification to an easier to use data structure
+//The mapping will be from item id code to the element definition
+//The doctype and version come directly from the specification used to parse the file
+//not from the file itself
 type Ebml struct {
 	Data         map[int64]EbmlData
 	DocumentType string
 	Version      int
 }
 
+//EbmlData is a structure that represents the element in the matroska specification
 type EbmlData struct {
 	Name              string
 	Type              string
