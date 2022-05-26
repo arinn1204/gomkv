@@ -8,15 +8,7 @@ type File struct {
 	File *os.File
 }
 
-type EbmlReader interface {
-	Read(f *File, startPos uint, buf []byte) int
-}
-
 var ebmlFile File
-
-func init() {
-	ebmlFile = File{}
-}
 
 //Read is a wrapper around os.File.Read
 func (ebmlFile File) Read(startPos uint, buf []byte) int {

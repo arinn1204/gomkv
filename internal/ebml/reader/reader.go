@@ -5,8 +5,8 @@ import (
 )
 
 type EbmlReader struct {
-	File    *io.File
-	currPos uint
+	Reader  io.EbmlReader
+	CurrPos uint
 }
 
 type IEbmlReader interface {
@@ -14,12 +14,31 @@ type IEbmlReader interface {
 	GetWidth() uint
 }
 
-var reader EbmlReader
+var ebmlReader EbmlReader
 
 func (reader EbmlReader) GetSize(width uint) uint64 {
 	return uint64(0)
 }
 
-func (reader EbmlReader) GetWidth() uint {
-	return uint(0)
+func (ebmlReader EbmlReader) GetWidth() uint {
+	firstByte := make([]byte, 1)
+
+	ret := ebmlReader.Reader.Read(0, firstByte)
+
+	if ret == 0 || len(firstByte) == 0 {
+		return 0
+	}
+
+	result := uint(0)
+	first := byte(255)
+
+	for first > 0 {
+		if (firstByte[0] | first) == first {
+			result++
+		}
+
+		first >>= 1
+	}
+
+	return result
 }
