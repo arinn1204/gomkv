@@ -10,13 +10,6 @@ type EbmlReader struct {
 	CurrPos uint
 }
 
-var ebmlReader EbmlReader
-
-//GetSize will return the size of the next element in the stream (in bytes)
-func (ebmlReader EbmlReader) GetSize(width uint) uint64 {
-	return uint64(0)
-}
-
 //GetWidth will return the width of the next element in the stream
 func (ebmlReader EbmlReader) GetWidth() uint {
 	firstByte := make([]byte, 1)
