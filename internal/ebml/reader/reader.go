@@ -4,22 +4,20 @@ import (
 	"github.com/arinn1204/gomkv/internal/io"
 )
 
+//EbmlReader will contain the IoReader as well as the current position of this members stream
 type EbmlReader struct {
 	Reader  io.IoReader
 	CurrPos uint
 }
 
-type IEbmlReader interface {
-	GetSize(width uint) uint64
-	GetWidth() uint
-}
-
 var ebmlReader EbmlReader
 
+//GetSize will return the size of the next element in the stream (in bytes)
 func (reader EbmlReader) GetSize(width uint) uint64 {
 	return uint64(0)
 }
 
+//GetWidth will return the width of the next element in the stream
 func (ebmlReader EbmlReader) GetWidth() uint {
 	firstByte := make([]byte, 1)
 
