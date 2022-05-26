@@ -6,3 +6,6 @@ test:
 
 lint:
 	@golint -set_exit_status internal/... cmd/... pkg/...
+
+clean:
+	rm gomkv
