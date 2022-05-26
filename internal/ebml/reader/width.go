@@ -1,15 +1,5 @@
 package reader
 
-import (
-	"github.com/arinn1204/gomkv/internal/io"
-)
-
-//EbmlReader will contain the IoReader as well as the current position of this members stream
-type EbmlReader struct {
-	Reader  io.Reader
-	CurrPos uint
-}
-
 //GetWidth will return the width of the next element in the stream
 func (ebmlReader EbmlReader) GetWidth() uint {
 	firstByte := make([]byte, 1)
