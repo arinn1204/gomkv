@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetWidth(t *testing.T) {
-	ebml := &mocks.IoReader{}
+	ebml := &mocks.Reader{}
 
 	reader := EbmlReader{
 		Reader:  ebml,
