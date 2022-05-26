@@ -7,7 +7,7 @@ import (
 
 //EbmlReader is the interface that will parse the file to obtain the metadata
 type EbmlReader interface {
-	read(*io.File) types.EbmlDocument
+	Read(*io.File) types.EbmlDocument
 }
 
 //Ebml is the struct used to receive the interface
