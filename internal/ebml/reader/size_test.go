@@ -12,18 +12,20 @@ import (
 type testData struct {
 	size      int64
 	readCount int
+	numCalls  int
 }
 
 func TestGetSizeWithDifferentWidths(t *testing.T) {
 	sizes := []testData{
 		{
-			readCount: 1,
 			size:      1,
+			readCount: 1,
+			numCalls:  2,
 		},
 	}
 
 	data := []byte{
-		byte(1),
+		byte(6),
 		byte(2),
 		byte(3),
 		byte(4),
@@ -49,10 +51,14 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 				copy(arr, data[0:count])
 			})
 
+		width, _ := widthMap.GetInverse(i)
+		data[0] = byte(width.(int))
+
 		t.Run(
 			testName,
 			func(t *testing.T) {
-				size := reader.GetSize(i)
+				size := reader.GetSize()
+				ebml.AssertNumberOfCalls(t, "Read", expected.numCalls)
 				assert.Equal(t, expected.size, size)
 			},
 		)
