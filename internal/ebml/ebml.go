@@ -5,11 +5,6 @@ import (
 	"github.com/arinn1204/gomkv/internal/io"
 )
 
-//EbmlReader is the interface that will parse the file to obtain the metadata
-type EbmlReader interface {
-	Read(*io.File) types.EbmlDocument
-}
-
 //Ebml is the struct used to receive the interface
 type Ebml struct{}
 

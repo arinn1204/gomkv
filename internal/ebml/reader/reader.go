@@ -6,14 +6,14 @@ import (
 
 //EbmlReader will contain the IoReader as well as the current position of this members stream
 type EbmlReader struct {
-	Reader  io.IoReader
+	Reader  io.Reader
 	CurrPos uint
 }
 
 var ebmlReader EbmlReader
 
 //GetSize will return the size of the next element in the stream (in bytes)
-func (reader EbmlReader) GetSize(width uint) uint64 {
+func (ebmlReader EbmlReader) GetSize(width uint) uint64 {
 	return uint64(0)
 }
 

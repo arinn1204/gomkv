@@ -32,10 +32,10 @@ type ebmlStructure struct {
 	XMLName      xml.Name     `xml:"EBMLSchema"`
 	DocumentType string       `xml:"docType,attr"`
 	Version      int          `xml:"version,attr"`
-	Elements     []elementXml `xml:"element"`
+	Elements     []elementXML `xml:"element"`
 }
 
-type elementXml struct {
+type elementXML struct {
 	XMLName           xml.Name `xml:"element"`
 	Name              string   `xml:"name,attr"`
 	Path              string   `xml:"path,attr"`
