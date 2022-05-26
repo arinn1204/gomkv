@@ -5,7 +5,7 @@ import (
 )
 
 type EbmlReader struct {
-	Reader  io.EbmlReader
+	Reader  io.IoReader
 	CurrPos uint
 }
 
