@@ -20,40 +20,40 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 			size:     127,
 			numCalls: 1,
 		},
-		// {
-		// 	size:     16147,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     2036498,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     252908049,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     30384722192,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     3380442370063,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     865393246736142,
-		// 	numCalls: 2,
-		// },
-		// {
-		// 	size:     5367889050668557,
-		// 	numCalls: 3,
-		// },
+		{
+			size:     16147,
+			numCalls: 2,
+		},
+		{
+			size:     2036498,
+			numCalls: 2,
+		},
+		{
+			size:     252908049,
+			numCalls: 2,
+		},
+		{
+			size:     30384722192,
+			numCalls: 2,
+		},
+		{
+			size:     3380442370063,
+			numCalls: 2,
+		},
+		{
+			size:     865393246736142,
+			numCalls: 2,
+		},
+		{
+			size:     5367889050668557,
+			numCalls: 2,
+		},
 	}
 
 	for i, expected := range sizes {
 		ebml := &mocks.Reader{}
 		reader := EbmlReader{
-			Reader:  ebml,
+			File:    ebml,
 			CurrPos: 0,
 		}
 		width, _ := widthMap.GetInverse(i + 1)
@@ -71,17 +71,18 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 		}
 
 		alreadyRead := 0
+		var retArr []byte
 
-		ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything).
-			Return(1).
-			Run(func(args mock.Arguments) {
-				arr := args.Get(1).([]byte)
-				count := len(arr)
-				//mimic the reading of data and copy into the argument array
-				copy(arr, data[alreadyRead:count])
+		call := ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything)
 
-				alreadyRead += count
-			})
+		call.Run(func(args mock.Arguments) {
+			count := args.Get(1).(uint)
+			retArr = make([]byte, count)
+
+			copy(retArr, data[alreadyRead:alreadyRead+int(count)])
+			alreadyRead += int(count)
+			call.ReturnArguments = mock.Arguments{retArr}
+		})
 
 		testName := fmt.Sprintf("GetSize(width=%v)", i)
 

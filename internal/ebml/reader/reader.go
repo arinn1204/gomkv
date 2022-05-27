@@ -6,6 +6,6 @@ import (
 
 //EbmlReader will contain the IoReader as well as the current position of this members stream
 type EbmlReader struct {
-	Reader  io.Reader
+	File    io.Reader
 	CurrPos uint
 }

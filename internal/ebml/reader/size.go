@@ -2,9 +2,8 @@ package reader
 
 //GetSize will return the size of the proceeding EBML element
 func (ebmlReader *EbmlReader) GetSize() int64 {
-	buf := make([]byte, 1)
-	ret := ebmlReader.Reader.Read(ebmlReader.CurrPos, buf)
-	ebmlReader.CurrPos += uint(ret)
+	buf := ebmlReader.File.Read(ebmlReader.CurrPos, 1)
+	ebmlReader.CurrPos += uint(len(buf))
 
 	seed := buf[0]
 	width := getWidth(seed)
@@ -35,22 +34,18 @@ func (ebmlReader *EbmlReader) GetSize() int64 {
 	return size
 }
 
-func read(count int, reader *EbmlReader, seed byte) int64 {
+func read(count uint, reader *EbmlReader, seed byte) int64 {
 	result := int64(seed) << (count * 8)
 
 	if count == 0 {
 		return result
 	}
 
-	file := reader.Reader
-
-	buf := make([]byte, count)
-
-	file.Read(reader.CurrPos, buf)
+	buf := reader.File.Read(reader.CurrPos, count)
 	reader.CurrPos += uint(len(buf))
 
-	for i := count - 1; i > 0; i-- {
-		result |= int64(buf[i]) << ((i - 1) * 8)
+	for i := uint(0); i < count; i++ {
+		result += int64(buf[i]) << ((count - 1 - i) * 8)
 	}
 
 	return result
