@@ -1,4 +1,4 @@
-package reader
+package ebml
 
 import (
 	"fmt"
@@ -52,7 +52,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 
 	for i, expected := range sizes {
 		ebml := &mocks.Reader{}
-		reader := EbmlReader{
+		reader := Ebml{
 			File:    ebml,
 			CurrPos: 0,
 		}

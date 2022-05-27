@@ -1,4 +1,4 @@
-package reader
+package ebml
 
 import (
 	"fmt"

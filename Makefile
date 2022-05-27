@@ -9,7 +9,3 @@ lint:
 
 clean:
 	rm gomkv
-
-vendor:
-	go mod tidy
-	go vendor
