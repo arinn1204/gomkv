@@ -1,9 +1,12 @@
 package ebml
 
+import "encoding/binary"
+
 //GetSize will return the size of the proceeding EBML element
 func (ebml *Ebml) GetSize() int64 {
-	buf := ebml.File.Read(ebml.CurrPos, 1)
-	ebml.CurrPos += uint(len(buf))
+	buf := make([]byte, 1)
+	n := ebml.File.Read(ebml.CurrPos, buf)
+	ebml.CurrPos += uint(n)
 
 	seed := buf[0]
 	width := getWidth(seed)
@@ -26,7 +29,7 @@ func (ebml *Ebml) GetSize() int64 {
 	case 2:
 		size = read(1, ebml, seed&63)
 	case 1:
-		size = read(0, ebml, seed&127)
+		size = int64(seed) & 127
 	default:
 		size = 0
 	}
@@ -35,20 +38,18 @@ func (ebml *Ebml) GetSize() int64 {
 }
 
 func read(count uint, ebml *Ebml, seed byte) int64 {
-	result := int64(seed) << (count * 8)
+	readBuf := make([]byte, count)
+	n := ebml.File.Read(ebml.CurrPos, readBuf)
+	ebml.CurrPos += uint(n)
 
-	if count == 0 {
-		return result
+	buf := make([]byte, 8)
+	copy(buf[8-count:], readBuf)
+
+	if seed > 0 {
+		buf[8-count-1] = seed
 	}
 
-	buf := ebml.File.Read(ebml.CurrPos, count)
-	ebml.CurrPos += uint(len(buf))
-
-	for i := uint(0); i < count; i++ {
-		result += int64(buf[i]) << ((count - 1 - i) * 8)
-	}
-
-	return result
+	return int64(binary.BigEndian.Uint64(buf))
 }
 
 func getWidth(firstByte byte) uint {

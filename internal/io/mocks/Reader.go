@@ -9,17 +9,15 @@ type Reader struct {
 	mock.Mock
 }
 
-// Read provides a mock function with given fields: startPos, size
-func (_m *Reader) Read(startPos uint, size uint) []byte {
-	ret := _m.Called(startPos, size)
+// Read provides a mock function with given fields: startPos, buf
+func (_m *Reader) Read(startPos uint, buf []byte) int {
+	ret := _m.Called(startPos, buf)
 
-	var r0 []byte
-	if rf, ok := ret.Get(0).(func(uint, uint) []byte); ok {
-		r0 = rf(startPos, size)
+	var r0 int
+	if rf, ok := ret.Get(0).(func(uint, []byte) int); ok {
+		r0 = rf(startPos, buf)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
-		}
+		r0 = ret.Get(0).(int)
 	}
 
 	return r0

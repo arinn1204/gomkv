@@ -1,6 +1,7 @@
 package ebml
 
 import (
+	"encoding/binary"
 	"fmt"
 	"testing"
 
@@ -12,6 +13,21 @@ import (
 type testData struct {
 	size     int64
 	numCalls int
+}
+
+func getData(width int) []byte {
+	w, _ := widthMap.GetInverse(width)
+	return []byte{
+		byte(w.(int)),
+		byte(19),
+		byte(18),
+		byte(17),
+		byte(16),
+		byte(15),
+		byte(14),
+		byte(13),
+		byte(12),
+	}
 }
 
 func TestGetSizeWithDifferentWidths(t *testing.T) {
@@ -56,32 +72,19 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 			File:    ebml,
 			CurrPos: 0,
 		}
-		width, _ := widthMap.GetInverse(i + 1)
-
-		data := []byte{
-			byte(width.(int)),
-			byte(19),
-			byte(18),
-			byte(17),
-			byte(16),
-			byte(15),
-			byte(14),
-			byte(13),
-			byte(12),
-		}
+		data := getData(i + 1)
 
 		alreadyRead := 0
-		var retArr []byte
 
 		call := ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything)
 
 		call.Run(func(args mock.Arguments) {
-			count := args.Get(1).(uint)
-			retArr = make([]byte, count)
+			retArr := args.Get(1).([]byte)
+			count := len(retArr)
 
 			copy(retArr, data[alreadyRead:alreadyRead+int(count)])
 			alreadyRead += int(count)
-			call.ReturnArguments = mock.Arguments{retArr}
+			call.Return(len(retArr))
 		})
 
 		testName := fmt.Sprintf("GetSize(width=%v)", i)
@@ -95,4 +98,34 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 			},
 		)
 	}
+
+}
+
+func TestEndianess(t *testing.T) {
+
+	data := getData(6)
+	ebml := &mocks.Reader{}
+	reader := Ebml{
+		File:    ebml,
+		CurrPos: 0,
+	}
+	call := ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything)
+
+	alreadyRead := 0
+
+	call.Run(func(args mock.Arguments) {
+		retArr := args.Get(1).([]byte)
+		count := len(retArr)
+
+		copy(retArr, data[alreadyRead:alreadyRead+int(count)])
+		alreadyRead += int(count)
+		call.Return(len(retArr))
+	})
+
+	result := reader.GetSize()
+
+	be := make([]byte, 8)
+	binary.BigEndian.PutUint64(be, uint64(result))
+
+	assert.Equal(t, be, []byte{0, 0, 3, 19, 18, 17, 16, 15})
 }

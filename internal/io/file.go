@@ -11,13 +11,11 @@ type File struct {
 var ebmlFile File
 
 //Read is a wrapper around os.File.Read
-func (ebmlFile *File) Read(startPos uint, count uint) []byte {
+func (ebmlFile *File) Read(startPos uint, buf []byte) int {
 	file := ebmlFile.File
 
 	file.Seek(int64(startPos), 0)
-	buf := make([]byte, count)
+	n, _ := file.Read(buf)
 
-	file.Read(buf)
-
-	return buf
+	return n
 }
