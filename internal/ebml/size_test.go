@@ -84,7 +84,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 
 			copy(retArr, data[alreadyRead:alreadyRead+int(count)])
 			alreadyRead += int(count)
-			call.Return(len(retArr))
+			call.Return(len(retArr), nil)
 		})
 
 		testName := fmt.Sprintf("GetSize(width=%v)", i)
@@ -119,7 +119,7 @@ func TestEndianess(t *testing.T) {
 
 		copy(retArr, data[alreadyRead:alreadyRead+int(count)])
 		alreadyRead += int(count)
-		call.Return(len(retArr))
+		call.Return(len(retArr), nil)
 	})
 
 	result := reader.GetSize()
@@ -136,7 +136,7 @@ func TestReadReturnsZero(t *testing.T) {
 		File:    ebml,
 		CurrPos: 0,
 	}
-	ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything).Return(0)
+	ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything).Return(0, nil)
 	result := reader.GetSize()
 	assert.Equal(t, int64(0), result)
 }

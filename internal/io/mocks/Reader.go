@@ -10,7 +10,7 @@ type Reader struct {
 }
 
 // Read provides a mock function with given fields: startPos, buf
-func (_m *Reader) Read(startPos uint, buf []byte) int {
+func (_m *Reader) Read(startPos uint, buf []byte) (int, error) {
 	ret := _m.Called(startPos, buf)
 
 	var r0 int
@@ -20,7 +20,14 @@ func (_m *Reader) Read(startPos uint, buf []byte) int {
 		r0 = ret.Get(0).(int)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uint, []byte) error); ok {
+		r1 = rf(startPos, buf)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 type NewReaderT interface {

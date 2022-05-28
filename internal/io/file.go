@@ -18,7 +18,7 @@ func init() {
 }
 
 //Read is a wrapper around os.File.Read
-func (ebmlFile *File) Read(startPos uint, buf []byte) int {
+func (ebmlFile *File) Read(startPos uint, buf []byte) (int, error) {
 	file := ebmlFile.File
 
 	mutex.Lock()
@@ -26,5 +26,5 @@ func (ebmlFile *File) Read(startPos uint, buf []byte) int {
 	file.Seek(int64(startPos), 0)
 	n, _ := file.Read(buf)
 
-	return n
+	return n, nil
 }

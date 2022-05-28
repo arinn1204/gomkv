@@ -5,7 +5,7 @@ import "encoding/binary"
 //GetSize will return the size of the proceeding EBML element
 func (ebml *Ebml) GetSize() int64 {
 	buf := make([]byte, 1)
-	n := ebml.File.Read(ebml.CurrPos, buf)
+	n, _ := ebml.File.Read(ebml.CurrPos, buf)
 	ebml.CurrPos += uint(n)
 
 	seed := buf[0]
@@ -39,7 +39,7 @@ func (ebml *Ebml) GetSize() int64 {
 
 func read(count uint, ebml *Ebml, seed byte) int64 {
 	readBuf := make([]byte, count)
-	n := ebml.File.Read(ebml.CurrPos, readBuf)
+	n, _ := ebml.File.Read(ebml.CurrPos, readBuf)
 	ebml.CurrPos += uint(n)
 
 	buf := make([]byte, 8)
