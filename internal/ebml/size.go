@@ -44,11 +44,7 @@ func read(count uint, ebml *Ebml, seed byte) int64 {
 
 	buf := make([]byte, 8)
 	copy(buf[8-count:], readBuf)
-
-	if seed > 0 {
-		buf[8-count-1] = seed
-	}
-
+	buf[8-count-1] = seed
 	return int64(binary.BigEndian.Uint64(buf))
 }
 
