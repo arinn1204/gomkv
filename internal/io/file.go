@@ -11,7 +11,6 @@ type File struct {
 	File *os.File
 }
 
-var ebmlFile File
 var mutex sync.Mutex
 
 func init() {
