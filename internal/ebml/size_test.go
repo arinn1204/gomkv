@@ -129,3 +129,14 @@ func TestEndianess(t *testing.T) {
 
 	assert.Equal(t, be, []byte{0, 0, 3, 19, 18, 17, 16, 15})
 }
+
+func TestReadReturnsZero(t *testing.T) {
+	ebml := &mocks.Reader{}
+	reader := Ebml{
+		File:    ebml,
+		CurrPos: 0,
+	}
+	ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything).Return(0)
+	result := reader.GetSize()
+	assert.Equal(t, int64(0), result)
+}
