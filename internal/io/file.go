@@ -16,10 +16,10 @@ var ebmlFile File
 
 //Read is a wrapper around os.File.Read
 func (ebmlFile *File) Read(startPos uint, buf []byte) int {
-	ebmlFile.Mutex.Lock()
-	defer ebmlFile.Mutex.Unlock()
 	file := ebmlFile.File
 
+	ebmlFile.Mutex.Lock()
+	defer ebmlFile.Mutex.Unlock()
 	file.Seek(int64(startPos), 0)
 	n, _ := file.Read(buf)
 
