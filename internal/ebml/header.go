@@ -1,14 +1,13 @@
-package mapper
+package ebml
 
 import (
 	"encoding/binary"
 
 	"github.com/arinn1204/gomkv/internal/array"
-	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
-func Map(ebml ebml.Ebml) (types.Header, error) {
+func createHeader(ebml Ebml) (types.Header, error) {
 	startPos := ebml.CurrPos
 	headerSize := ebml.GetSize()
 
@@ -30,6 +29,6 @@ func Map(ebml ebml.Ebml) (types.Header, error) {
 	return header, nil
 }
 
-func process(header *types.Header, id uint64, ebml *ebml.Ebml) {
+func process(header *types.Header, id uint64, ebml *Ebml) {
 
 }

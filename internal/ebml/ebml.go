@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/arinn1204/gomkv/internal/ebml/mapper"
 	"github.com/arinn1204/gomkv/internal/filesystem"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
@@ -28,7 +27,7 @@ func (ebml Ebml) Read() (types.EbmlDocument, error) {
 		return types.EbmlDocument{}, err
 	}
 
-	header, _ := mapper.Map(ebml)
+	header, _ := createHeader(ebml)
 
 	return types.EbmlDocument{
 			Header:   header,
