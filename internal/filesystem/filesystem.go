@@ -30,16 +30,26 @@ func (ebmlFile *File) Read(startPos uint, buf []byte) (int, error) {
 
 	mutex.Lock()
 	defer mutex.Unlock()
-	file.Seek(int64(startPos), 0)
+	_, err := file.Seek(int64(startPos), 0)
+
+	if err != nil {
+		return handleErr(err)
+	}
+
 	n, err := file.Read(buf)
 
 	if err != nil {
-		if err == io.EOF {
-			return 0, err
-		}
-
-		panic(err)
+		return handleErr(err)
 	}
 
 	return n, nil
+}
+
+func handleErr(err error) (int, error) {
+	if err == io.EOF {
+		return 0, err
+	}
+
+	panic(err)
+
 }
