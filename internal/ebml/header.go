@@ -14,7 +14,7 @@ func createHeader(ebml Ebml, spec specification.Ebml) (types.Header, error) {
 	header := types.Header{}
 
 	for ebml.CurrPos < startPos+headerSize {
-		id, err := getId(&ebml)
+		id, err := getID(&ebml)
 
 		if err != nil {
 			return header, err
@@ -31,7 +31,7 @@ func createHeader(ebml Ebml, spec specification.Ebml) (types.Header, error) {
 	return header, nil
 }
 
-func getId(ebml *Ebml) (uint16, error) {
+func getID(ebml *Ebml) (uint16, error) {
 	buf := make([]byte, 2)
 	n, err := ebml.File.Read(ebml.CurrPos, buf)
 	if err != nil {
