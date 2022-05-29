@@ -76,7 +76,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 
 		alreadyRead := 0
 
-		call := ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything)
+		call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
 		call.Run(func(args mock.Arguments) {
 			retArr := args.Get(1).([]byte)
@@ -109,7 +109,7 @@ func TestEndianess(t *testing.T) {
 		File:    ebml,
 		CurrPos: 0,
 	}
-	call := ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything)
+	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
 	alreadyRead := 0
 
@@ -136,7 +136,7 @@ func TestReadReturnsZero(t *testing.T) {
 		File:    ebml,
 		CurrPos: 0,
 	}
-	ebml.On("Read", mock.AnythingOfType("uint"), mock.Anything).Return(0, nil)
+	ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything).Return(0, nil)
 	result := reader.GetSize()
 	assert.Equal(t, int64(0), result)
 }

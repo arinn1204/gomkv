@@ -2,8 +2,8 @@ package types
 
 //EbmlDocument is the overarching document structure for an EBML doc
 type EbmlDocument struct {
-	header   Header
-	segments []Segment
+	Header   Header
+	Segments []Segment
 }
 
 //Segment contains all the information about the individual EBML segments

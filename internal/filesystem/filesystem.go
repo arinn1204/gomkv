@@ -15,7 +15,7 @@ type File struct {
 //Reader is a wrapper around os.Read()
 //Reader has the benefit of having the File structure associated with it
 type Reader interface {
-	Read(startPos uint, buf []byte) (int, error)
+	Read(startPos int64, buf []byte) (int, error)
 }
 
 var mutex sync.Mutex
@@ -25,12 +25,12 @@ func init() {
 }
 
 //Read is a wrapper around os.File.Read
-func (ebmlFile File) Read(startPos uint, buf []byte) (int, error) {
+func (ebmlFile File) Read(startPos int64, buf []byte) (int, error) {
 	file := ebmlFile.File
 
 	mutex.Lock()
 	defer mutex.Unlock()
-	_, err := file.Seek(int64(startPos), 0)
+	_, err := file.Seek(startPos, 0)
 
 	if err != nil {
 		return handleErr(err)
