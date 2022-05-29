@@ -9,8 +9,8 @@ import (
 )
 
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
-	specificationFile = "testdata/basicEbml.xml"
-	spec := GetSpecification()
+	specificationFile := "testdata/basicEbml.xml"
+	spec := GetSpecification(specificationFile)
 
 	ebml := EbmlData{
 		Name:              "EBMLMaxIDLength",
@@ -23,8 +23,8 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 
 	id, _ := strconv.ParseInt("0x42F2", 16, 16)
 
-	data := make(map[int64]EbmlData)
-	data[id] = ebml
+	data := make(map[uint32]EbmlData)
+	data[uint32(id)] = ebml
 
 	ebmlStructure := Ebml{
 		Data:         data,
@@ -36,7 +36,7 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 }
 
 func TestWillPanicIfFileNotFound(t *testing.T) {
-	specificationFile = "testdata/notFound.xml"
+	specificationFile := "testdata/notFound.xml"
 
 	defer func() {
 		err := recover().(string)
@@ -50,11 +50,11 @@ func TestWillPanicIfFileNotFound(t *testing.T) {
 		assert.True(t, match, "Failed to match the pattern -- '%v'. Found '%v", pattern, err)
 	}()
 
-	GetSpecification()
+	GetSpecification(specificationFile)
 }
 
 func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
-	specificationFile = "testdata/badXml.xml"
+	specificationFile := "testdata/badXml.xml"
 
 	defer func() {
 		err := recover().(string)
@@ -69,5 +69,5 @@ func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
 
 	}()
 
-	GetSpecification()
+	GetSpecification(specificationFile)
 }

@@ -13,7 +13,7 @@ import (
 //The doctype and version come directly from the specification used to parse the file
 //not from the file itself
 type Ebml struct {
-	Data         map[int64]EbmlData
+	Data         map[uint32]EbmlData
 	DocumentType string
 	Version      int
 }
@@ -47,19 +47,13 @@ type elementXML struct {
 	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
 
-var specificationFile string
-
-func init() {
-	specificationFile = "data/matroska_ebml.xml"
-}
-
 //GetSpecification is a method used to read the matroska specification and return a mapped form of it that is easier to parse.
 //This form will have the structure of map[elementID]=EBMLInformation
 //The information will contain all the necessary element info: Name, Type, Range, Default, MinOccur, MaxOccur
-func GetSpecification() Ebml {
-	structure := readSpecification()
+func GetSpecification(path string) Ebml {
+	structure := readSpecification(path)
 
-	data := make(map[int64]EbmlData)
+	data := make(map[uint32]EbmlData)
 	ebml := Ebml{
 		Version:      structure.Version,
 		DocumentType: structure.DocumentType,
@@ -69,7 +63,7 @@ func GetSpecification() Ebml {
 	for _, element := range structure.Elements {
 		bitSize := (len(element.ID) - 2) * 4
 		id, _ := strconv.ParseInt(element.ID, 16, bitSize)
-		data[id] = EbmlData{
+		data[uint32(id)] = EbmlData{
 			Name:              element.Name,
 			Type:              element.Type,
 			Range:             element.Range,
@@ -83,8 +77,8 @@ func GetSpecification() Ebml {
 
 }
 
-func readSpecification() ebmlStructure {
-	xmlFile, err := os.Open(specificationFile)
+func readSpecification(path string) ebmlStructure {
+	xmlFile, err := os.Open(path)
 
 	if err != nil {
 		log.Panicf("Failed to open specification. -- '%+v'", err)

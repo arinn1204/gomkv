@@ -3,7 +3,6 @@ package ebml
 import (
 	"encoding/binary"
 
-	"github.com/arinn1204/gomkv/internal/array"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
@@ -14,21 +13,31 @@ func createHeader(ebml Ebml) (types.Header, error) {
 	header := types.Header{}
 
 	for ebml.CurrPos < startPos+headerSize {
-		elementSize := ebml.GetSize()
-		buf := make([]byte, elementSize)
-		paddedBuf := make([]byte, 8)
-		err := array.Pad(buf, paddedBuf)
+		id, err := getId(&ebml)
+
 		if err != nil {
-			return types.Header{}, err
+			return header, err
 		}
 
-		id := binary.BigEndian.Uint64(paddedBuf)
 		process(&header, id, &ebml)
 	}
 
 	return header, nil
 }
 
-func process(header *types.Header, id uint64, ebml *Ebml) {
+func getId(ebml *Ebml) (uint16, error) {
+	buf := make([]byte, 2)
+	n, err := ebml.File.Read(ebml.CurrPos, buf)
+	if err != nil {
+		return 0, err
+	}
 
+	ebml.CurrPos += int64(n)
+
+	return binary.BigEndian.Uint16(buf), nil
+}
+
+func process(header *types.Header, id uint16, ebml *Ebml) {
+	// elemSize := ebml.GetSize()
+	// elem := spec.Data[uint32(id)]
 }
