@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/filesystem"
+	"github.com/arinn1204/gomkv/pkg/ebml"
 )
 
 func main() {

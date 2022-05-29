@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/arinn1204/gomkv/internal/ebml/types"
 	"github.com/arinn1204/gomkv/internal/filesystem"
+	"github.com/arinn1204/gomkv/pkg/ebml/types"
 )
 
 //Ebml will contain the IoReader as well as the current position of this members stream
@@ -28,19 +28,10 @@ func (ebml Ebml) Read() (types.EbmlDocument, error) {
 	}
 
 	return types.EbmlDocument{
-			Header: getHeader(&ebml),
+			Header:   types.Header{},
+			Segments: make([]types.Segment, 1),
 		},
 		nil
-}
-
-func getHeader(ebml *Ebml) types.Header {
-	header := types.Header{}
-	size := ebml.GetSize()
-
-	endPos := ebml.CurrPos + size
-	_ = endPos
-
-	return header
 }
 
 func validateMagicNum(ebml *Ebml) error {

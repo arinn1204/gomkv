@@ -1,6 +1,8 @@
 package ebml
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 //GetSize will return the size of the proceeding EBML element
 func (ebml *Ebml) GetSize() int64 {
