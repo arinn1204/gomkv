@@ -36,11 +36,15 @@ type ebmlStructure struct {
 }
 
 type elementXML struct {
-	XMLName xml.Name `xml:"element"`
-	Name    string   `xml:"name,attr"`
-	ID      string   `xml:"id,attr"`
-	Type    string   `xml:"type,attr"`
-	Default int      `xml:"default,attr"`
+	XMLName           xml.Name `xml:"element"`
+	Name              string   `xml:"name,attr"`
+	Path              string   `xml:"path,attr"`
+	ID                string   `xml:"id,attr"`
+	Type              string   `xml:"type,attr"`
+	Range             string   `xml:"range,attr"`
+	Default           int      `xml:"default,attr"`
+	MinimumOccurances int      `xml:"minOccurs,attr"`
+	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
 
 var specificationFile string
@@ -66,9 +70,12 @@ func GetSpecification() Ebml {
 		bitSize := (len(element.ID) - 2) * 4
 		id, _ := strconv.ParseInt(element.ID, 16, bitSize)
 		data[id] = EbmlData{
-			Name:    element.Name,
-			Type:    element.Type,
-			Default: element.Default,
+			Name:              element.Name,
+			Type:              element.Type,
+			Range:             element.Range,
+			Default:           element.Default,
+			MinimumOccurances: element.MinimumOccurances,
+			MaximumOccurances: element.MaximumOccurances,
 		}
 	}
 
