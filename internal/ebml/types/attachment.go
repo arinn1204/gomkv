@@ -8,5 +8,5 @@ type AttachedFile struct {
 	mime string
 	uid  uint
 	data []byte
-	id   int `default:"0x61A7"`
+	id   int
 }
