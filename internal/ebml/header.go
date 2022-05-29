@@ -20,7 +20,8 @@ func createHeader(ebml Ebml, spec specification.Ebml) (types.Header, error) {
 			return header, err
 		}
 
-		err = process(&header, id, &ebml, spec)
+		element := spec.Data[uint32(id)]
+		err = process(&header, id, &ebml, element)
 
 		if err != nil {
 			return header, err

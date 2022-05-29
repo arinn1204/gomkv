@@ -9,27 +9,37 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-func process[T any](item *T, id uint16, ebml *Ebml, spec specification.Ebml) error {
+func process[T any](item *T, id uint16, ebml *Ebml, element specification.EbmlData) error {
 	elemSize := ebml.GetSize()
-	element := spec.Data[uint32(id)]
+
+	var err error
 
 	if element.Type == "master" {
-
+		err = processMaster(item, element, ebml, elemSize)
 	} else {
-		buf := make([]byte, elemSize)
-		n, err := ebml.File.Read(ebml.CurrPos, buf)
-
-		if err != nil {
-			return err
-		}
-
-		ebml.CurrPos += int64(n)
-
-		elems := reflect.ValueOf(item).Elem()
-		field := elems.FieldByName(element.Name)
-		setElementData(buf, element, &field)
+		err = processItem(item, element, ebml, elemSize)
 	}
 
+	return err
+}
+
+func processMaster[T any](item *T, element specification.EbmlData, ebml *Ebml, size int64) error {
+	return nil
+}
+
+func processItem[T any](item *T, element specification.EbmlData, ebml *Ebml, size int64) error {
+	buf := make([]byte, size)
+	n, err := ebml.File.Read(ebml.CurrPos, buf)
+
+	if err != nil {
+		return err
+	}
+
+	ebml.CurrPos += int64(n)
+
+	elems := reflect.ValueOf(item).Elem()
+	field := elems.FieldByName(element.Name)
+	setElementData(buf, element, &field)
 	return nil
 }
 
