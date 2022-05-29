@@ -23,7 +23,7 @@ type EbmlData struct {
 	Name              string
 	Type              string
 	Range             string
-	Default           int
+	Default           string
 	MinimumOccurances int
 	MaximumOccurances int
 }
@@ -42,7 +42,7 @@ type elementXML struct {
 	ID                string   `xml:"id,attr"`
 	Type              string   `xml:"type,attr"`
 	Range             string   `xml:"range,attr"`
-	Default           int      `xml:"default,attr"`
+	Default           string   `xml:"default,attr"`
 	MinimumOccurances int      `xml:"minOccurs,attr"`
 	MaximumOccurances int      `xml:"maxOccurs,attr"`
 }
@@ -62,7 +62,7 @@ func GetSpecification(path string) Ebml {
 
 	for _, element := range structure.Elements {
 		bitSize := (len(element.ID) - 2) * 4
-		id, _ := strconv.ParseInt(element.ID, 16, bitSize)
+		id, _ := strconv.ParseUint(element.ID[2:], 16, bitSize)
 		data[uint32(id)] = EbmlData{
 			Name:              element.Name,
 			Type:              element.Type,

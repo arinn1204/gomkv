@@ -2,7 +2,9 @@ package ebml
 
 import (
 	"encoding/binary"
+	"reflect"
 
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
@@ -11,6 +13,7 @@ func createHeader(ebml Ebml) (types.Header, error) {
 	headerSize := ebml.GetSize()
 
 	header := types.Header{}
+	spec := specification.GetSpecification(ebml.SpecificationPath)
 
 	for ebml.CurrPos < startPos+headerSize {
 		id, err := getId(&ebml)
@@ -19,7 +22,11 @@ func createHeader(ebml Ebml) (types.Header, error) {
 			return header, err
 		}
 
-		process(&header, id, &ebml)
+		err = process(&header, id, &ebml, spec)
+
+		if err != nil {
+			return header, err
+		}
 	}
 
 	return header, nil
@@ -37,7 +44,22 @@ func getId(ebml *Ebml) (uint16, error) {
 	return binary.BigEndian.Uint16(buf), nil
 }
 
-func process(header *types.Header, id uint16, ebml *Ebml) {
-	// elemSize := ebml.GetSize()
-	// elem := spec.Data[uint32(id)]
+func process(header *types.Header, id uint16, ebml *Ebml, spec specification.Ebml) error {
+	elemSize := ebml.GetSize()
+	element := spec.Data[uint32(id)]
+
+	buf := make([]byte, elemSize)
+	n, err := ebml.File.Read(ebml.CurrPos, buf)
+
+	if err != nil {
+		return err
+	}
+
+	ebml.CurrPos += int64(n)
+
+	elems := reflect.ValueOf(header).Elem()
+	field := elems.FieldByName(element.Name)
+	setElementData(buf, element, &field)
+
+	return nil
 }

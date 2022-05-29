@@ -16,12 +16,12 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 		Name:              "EBMLMaxIDLength",
 		Type:              "uinteger",
 		Range:             "4",
-		Default:           4,
+		Default:           "4",
 		MinimumOccurances: 1,
 		MaximumOccurances: 1,
 	}
 
-	id, _ := strconv.ParseInt("0x42F2", 16, 16)
+	id, _ := strconv.ParseInt("42F2", 16, 16)
 
 	data := make(map[uint32]EbmlData)
 	data[uint32(id)] = ebml

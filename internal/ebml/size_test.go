@@ -15,7 +15,7 @@ type testData struct {
 	numCalls int
 }
 
-func getData(width int) []byte {
+func getTestData(width int) []byte {
 	w, _ := widthMap.GetInverse(width)
 	return []byte{
 		byte(w.(int)),
@@ -72,7 +72,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 			File:    ebml,
 			CurrPos: 0,
 		}
-		data := getData(i + 1)
+		data := getTestData(i + 1)
 
 		alreadyRead := 0
 
@@ -103,7 +103,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 
 func TestEndianess(t *testing.T) {
 
-	data := getData(6)
+	data := getTestData(6)
 	ebml := &mocks.Reader{}
 	reader := Ebml{
 		File:    ebml,

@@ -3,8 +3,11 @@ package ebml
 import (
 	"encoding/binary"
 	"fmt"
+	"reflect"
 	"strconv"
 
+	"github.com/arinn1204/gomkv/internal/array"
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/internal/filesystem"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
@@ -56,4 +59,26 @@ func validateMagicNum(ebml *Ebml) error {
 	}
 
 	return nil
+}
+
+func setElementData(buf []byte, element specification.EbmlData, field *reflect.Value) error {
+	switch element.Type {
+	case "uinteger":
+		paddedBuf := make([]byte, 8)
+		array.Pad(buf, paddedBuf)
+		data := binary.BigEndian.Uint64(paddedBuf)
+		field.Set(reflect.ValueOf(uint(data)))
+	case "utf-8":
+	case "string":
+		field.Set(reflect.ValueOf(string(buf)))
+	case "binary":
+		field.Set(reflect.ValueOf(buf))
+	case "date":
+		paddedBuf := make([]byte, 8)
+		array.Pad(buf, paddedBuf)
+		data := binary.BigEndian.Uint64(paddedBuf)
+		field.Set(reflect.ValueOf(data))
+	}
+
+	return fmt.Errorf("failed to get data for %v", element.Type)
 }

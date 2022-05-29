@@ -20,8 +20,11 @@ type Segment struct {
 
 //Header contains metadata about the document
 type Header struct {
-	maxIDLength   int
-	maxSizeLength int
-	docType       string
-	version       int
+	EBMLVersion        uint
+	EBMLReadVersion    uint
+	EBMLMaxIDLength    uint
+	EBMLMaxSizeLength  uint
+	DocType            string
+	DocTypeVersion     uint
+	DocTypeReadVersion uint
 }
