@@ -2,6 +2,9 @@ package main
 
 import (
 	"os"
+
+	"github.com/arinn1204/gomkv/internal/ebml"
+	"github.com/arinn1204/gomkv/internal/filesystem"
 )
 
 func main() {
@@ -12,4 +15,16 @@ func main() {
 		panic(err)
 	}
 	defer file.Close()
+
+	wrapper := filesystem.File{
+		File: file,
+	}
+
+	ebml := ebml.Ebml{
+		File:    wrapper,
+		CurrPos: 0,
+	}
+
+	doc := ebml.Read()
+	_ = doc
 }
