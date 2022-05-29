@@ -12,23 +12,7 @@ import (
 func process[T any](item *T, id uint16, ebml *Ebml, element specification.EbmlData) error {
 	elemSize := ebml.GetSize()
 
-	var err error
-
-	if element.Type == "master" {
-		err = processMaster(item, element, ebml, elemSize)
-	} else {
-		err = processItem(item, element, ebml, elemSize)
-	}
-
-	return err
-}
-
-func processMaster[T any](item *T, element specification.EbmlData, ebml *Ebml, size int64) error {
-	return nil
-}
-
-func processItem[T any](item *T, element specification.EbmlData, ebml *Ebml, size int64) error {
-	buf := make([]byte, size)
+	buf := make([]byte, elemSize)
 	n, err := ebml.File.Read(ebml.CurrPos, buf)
 
 	if err != nil {
@@ -39,8 +23,7 @@ func processItem[T any](item *T, element specification.EbmlData, ebml *Ebml, siz
 
 	elems := reflect.ValueOf(item).Elem()
 	field := elems.FieldByName(element.Name)
-	setElementData(buf, element, &field)
-	return nil
+	return setElementData(buf, element, &field)
 }
 
 func setElementData(buf []byte, element specification.EbmlData, field *reflect.Value) error {
@@ -50,16 +33,20 @@ func setElementData(buf []byte, element specification.EbmlData, field *reflect.V
 		array.Pad(buf, paddedBuf)
 		data := binary.BigEndian.Uint64(paddedBuf)
 		field.Set(reflect.ValueOf(uint(data)))
+		return nil
 	case "utf-8":
 	case "string":
 		field.Set(reflect.ValueOf(string(buf)))
+		return nil
 	case "binary":
 		field.Set(reflect.ValueOf(buf))
+		return nil
 	case "date":
 		paddedBuf := make([]byte, 8)
 		array.Pad(buf, paddedBuf)
 		data := binary.BigEndian.Uint64(paddedBuf)
 		field.Set(reflect.ValueOf(data))
+		return nil
 	}
 
 	return fmt.Errorf("failed to get data for %v", element.Type)
