@@ -22,22 +22,9 @@ func init() {
 }
 
 func (ebml Ebml) Read() (types.EbmlDocument, error) {
-	idBuf := make([]byte, 4)
-	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
-
+	err := validateMagicNum(ebml)
 	if err != nil {
 		return types.EbmlDocument{}, err
-	}
-
-	ebml.CurrPos += int64(n)
-
-	id := binary.BigEndian.Uint32(idBuf)
-
-	decEbmlId, _ := strconv.ParseUint(ebmlIdHex, 16, 32)
-
-	if decEbmlId != uint64(id) {
-		return types.EbmlDocument{},
-			fmt.Errorf("incorrect type of file expected magic number of %x but found %x", ebmlIdHex, id)
 	}
 
 	return types.EbmlDocument{
@@ -54,4 +41,25 @@ func getHeader(ebml Ebml) types.Header {
 	_ = endPos
 
 	return header
+}
+
+func validateMagicNum(ebml Ebml) error {
+	idBuf := make([]byte, 4)
+	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
+
+	if err != nil {
+		return err
+	}
+
+	ebml.CurrPos += int64(n)
+
+	id := binary.BigEndian.Uint32(idBuf)
+
+	decEbmlId, _ := strconv.ParseUint(ebmlIdHex, 16, 32)
+
+	if decEbmlId != uint64(id) {
+		return fmt.Errorf("incorrect type of file expected magic number of %x but found %x", ebmlIdHex, id)
+	}
+
+	return nil
 }
