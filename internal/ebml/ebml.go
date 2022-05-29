@@ -1,6 +1,10 @@
 package ebml
 
 import (
+	"encoding/binary"
+	"fmt"
+	"strconv"
+
 	"github.com/arinn1204/gomkv/internal/ebml/types"
 	"github.com/arinn1204/gomkv/internal/filesystem"
 )
@@ -11,10 +15,35 @@ type Ebml struct {
 	CurrPos int64
 }
 
-func (ebml Ebml) Read() types.EbmlDocument {
-	return types.EbmlDocument{
-		Header: getHeader(ebml),
+var ebmlIdHex string
+
+func init() {
+	ebmlIdHex = "1A45DFA3"
+}
+
+func (ebml Ebml) Read() (types.EbmlDocument, error) {
+	idBuf := make([]byte, 4)
+	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
+
+	if err != nil {
+		return types.EbmlDocument{}, err
 	}
+
+	ebml.CurrPos += int64(n)
+
+	id := binary.BigEndian.Uint32(idBuf)
+
+	decEbmlId, _ := strconv.ParseUint(ebmlIdHex, 16, 32)
+
+	if decEbmlId != uint64(id) {
+		return types.EbmlDocument{},
+			fmt.Errorf("incorrect type of file expected magic number of %x but found %x", ebmlIdHex, id)
+	}
+
+	return types.EbmlDocument{
+			Header: getHeader(ebml),
+		},
+		nil
 }
 
 func getHeader(ebml Ebml) types.Header {

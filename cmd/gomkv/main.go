@@ -26,6 +26,6 @@ func main() {
 		CurrPos: 0,
 	}
 
-	doc := ebml.Read()
+	doc, _ := ebml.Read()
 	_ = doc
 }
