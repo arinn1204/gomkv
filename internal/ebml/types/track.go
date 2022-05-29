@@ -1,6 +1,6 @@
 package types
 
-//Track is a top level element describing many entries
+//DisplayTrack is a top level element describing many entries
 type DisplayTrack struct {
 	entries []Entry
 }
@@ -46,7 +46,7 @@ type Flag struct {
 	lacing      uint
 }
 
-//Translate is a mapping between this track entry and the chapter codec data
+//EntryTranslate is a mapping between this track entry and the chapter codec data
 type EntryTranslate struct {
 	editionUids []uint
 	codec       uint

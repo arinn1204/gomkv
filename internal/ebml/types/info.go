@@ -17,13 +17,13 @@ type Info struct {
 	translations  []TranslationInformation
 }
 
-//Segment is a reference to the location in the stream that the filename is
+//SegmentInformation is a reference to the location in the stream that the filename is
 type SegmentInformation struct {
 	UID      uuid.UUID
 	filename string
 }
 
-//Translate is the mapping between this segment and other segments in a given chapter
+//TranslationInformation is the mapping between this segment and other segments in a given chapter
 type TranslationInformation struct {
 	editionUID   uint
 	codec        uint

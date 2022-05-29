@@ -2,7 +2,7 @@ package types
 
 import "github.com/google/uuid"
 
-//Entry is one of the chapters associate with the document
+//ChapterEntry is one of the chapters associate with the document
 type ChapterEntry struct {
 	UID         uint
 	flagHidden  uint
