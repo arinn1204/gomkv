@@ -11,8 +11,9 @@ import (
 
 //Ebml will contain the IoReader as well as the current position of this members stream
 type Ebml struct {
-	File    filesystem.Reader
-	CurrPos int64
+	File              filesystem.Reader
+	CurrPos           int64
+	SpecificationPath string
 }
 
 var ebmlIdHex string

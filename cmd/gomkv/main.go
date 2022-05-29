@@ -22,8 +22,9 @@ func main() {
 	}
 
 	ebml := ebml.Ebml{
-		File:    wrapper,
-		CurrPos: 0,
+		File:              wrapper,
+		CurrPos:           0,
+		SpecificationPath: "../../data/matroska_ebml.xml",
 	}
 
 	doc, _ := ebml.Read()
