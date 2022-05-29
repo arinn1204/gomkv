@@ -49,8 +49,13 @@ type elementXML struct {
 
 var specificationFile string
 
+//Specification is the formatted form of the EBML-matroska specification
+//This is read from the governing xml that defines the matroska format
+var Specification Ebml
+
 func init() {
 	specificationFile = "data/matroska_ebml.xml"
+	Specification := GetSpecification()
 }
 
 //GetSpecification is a method used to read the matroska specification and return a mapped form of it that is easier to parse.
