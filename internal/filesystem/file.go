@@ -1,4 +1,4 @@
-package io
+package filesystem
 
 import (
 	"os"
@@ -9,6 +9,12 @@ import (
 //Eventually this will be used to have a mutex to control multiple threads
 type File struct {
 	File *os.File
+}
+
+//Reader is a wrapper around os.Read()
+//Reader has the benefit of having the File structure associated with it
+type Reader interface {
+	Read(startPos uint, buf []byte) (int, error)
 }
 
 var mutex sync.Mutex

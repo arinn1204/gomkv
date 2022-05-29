@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/arinn1204/gomkv/internal/io/mocks"
+	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
