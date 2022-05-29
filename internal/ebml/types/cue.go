@@ -1,4 +1,4 @@
-package cue
+package types
 
 //Point contains the relevant information to a seek point
 type Point struct {

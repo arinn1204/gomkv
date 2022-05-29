@@ -1,9 +1,9 @@
-package chapter
+package types
 
 import "github.com/google/uuid"
 
 //Entry is one of the chapters associate with the document
-type Entry struct {
+type ChapterEntry struct {
 	UID         uint
 	flagHidden  uint
 	flagDefault uint

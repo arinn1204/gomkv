@@ -1,4 +1,4 @@
-package tag
+package types
 
 //Tag is a metadata descriptor
 type Tag struct {

@@ -1,4 +1,4 @@
-package cluster
+package types
 
 //Cluster is the top level element that defines the block (data)
 type Cluster struct {

@@ -1,4 +1,4 @@
-package seekhead
+package types
 
 import "github.com/google/uuid"
 

@@ -1,7 +1,7 @@
-package track
+package types
 
 //Track is a top level element describing many entries
-type Track struct {
+type DisplayTrack struct {
 	entries []Entry
 }
 
@@ -22,7 +22,7 @@ type Entry struct {
 	codec                       Codec
 	overlayTracks               []uint
 	seekPreRoll                 uint
-	translations                []Translate
+	translations                []EntryTranslate
 	video                       Video
 	audio                       Audio
 	operation                   Operation
@@ -47,7 +47,7 @@ type Flag struct {
 }
 
 //Translate is a mapping between this track entry and the chapter codec data
-type Translate struct {
+type EntryTranslate struct {
 	editionUids []uint
 	codec       uint
 	trackID     []byte
@@ -60,7 +60,7 @@ type Video struct {
 	stereo3DVideoWorks uint
 	alphaVideoMode     uint
 	pixel              Pixel
-	Display            Display
+	Display            DisplaySettings
 	colorSpace         []byte
 	color              Color
 	projection         Projection
@@ -81,8 +81,8 @@ type Crop struct {
 	right  uint
 }
 
-//Display is all the display related settings
-type Display struct {
+//DisplaySettings is all the display related settings
+type DisplaySettings struct {
 	width           uint
 	height          uint
 	unit            uint
