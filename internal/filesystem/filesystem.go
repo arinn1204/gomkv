@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"io"
 	"os"
 	"sync"
 )
@@ -30,7 +31,15 @@ func (ebmlFile *File) Read(startPos uint, buf []byte) (int, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	file.Seek(int64(startPos), 0)
-	n, _ := file.Read(buf)
+	n, err := file.Read(buf)
+
+	if err != nil {
+		if err == io.EOF {
+			return 0, err
+		}
+
+		panic(err)
+	}
 
 	return n, nil
 }
