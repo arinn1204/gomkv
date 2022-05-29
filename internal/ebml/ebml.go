@@ -22,18 +22,18 @@ func init() {
 }
 
 func (ebml Ebml) Read() (types.EbmlDocument, error) {
-	err := validateMagicNum(ebml)
+	err := validateMagicNum(&ebml)
 	if err != nil {
 		return types.EbmlDocument{}, err
 	}
 
 	return types.EbmlDocument{
-			Header: getHeader(ebml),
+			Header: getHeader(&ebml),
 		},
 		nil
 }
 
-func getHeader(ebml Ebml) types.Header {
+func getHeader(ebml *Ebml) types.Header {
 	header := types.Header{}
 	size := ebml.GetSize()
 
@@ -43,7 +43,7 @@ func getHeader(ebml Ebml) types.Header {
 	return header
 }
 
-func validateMagicNum(ebml Ebml) error {
+func validateMagicNum(ebml *Ebml) error {
 	idBuf := make([]byte, 4)
 	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
 
