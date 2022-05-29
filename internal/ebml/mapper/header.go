@@ -5,7 +5,7 @@ import (
 
 	"github.com/arinn1204/gomkv/internal/array"
 	"github.com/arinn1204/gomkv/internal/ebml"
-	"github.com/arinn1204/gomkv/pkg/ebml/types"
+	"github.com/arinn1204/gomkv/pkg/types"
 )
 
 func Map(ebml ebml.Ebml) (types.Header, error) {

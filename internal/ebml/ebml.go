@@ -7,7 +7,7 @@ import (
 
 	"github.com/arinn1204/gomkv/internal/ebml/mapper"
 	"github.com/arinn1204/gomkv/internal/filesystem"
-	"github.com/arinn1204/gomkv/pkg/ebml/types"
+	"github.com/arinn1204/gomkv/pkg/types"
 )
 
 //Ebml will contain the IoReader as well as the current position of this members stream
