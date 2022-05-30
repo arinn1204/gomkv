@@ -1,6 +1,7 @@
 package ebml
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
@@ -90,4 +91,30 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedHeader, doc.Header)
+}
+
+func TestFailsWhenNotEbmlDocument(t *testing.T) {
+	alreadyRead := 0
+	ebml := &mocks.Reader{}
+	reader := Ebml{
+		File:              ebml,
+		CurrPos:           0,
+		SpecificationPath: "testdata/header_ebml.xml",
+	}
+
+	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
+
+	testData := getHeaderTestData()[:3]
+	call.Run(func(args mock.Arguments) {
+		retArr := args.Get(1).([]byte)
+		count := len(retArr)
+
+		copy(retArr, testData)
+		alreadyRead += int(count)
+		call.Return(len(retArr), nil)
+	})
+
+	doc, err := reader.Read()
+	assert.Equal(t, types.EbmlDocument{}, doc)
+	assert.Equal(t, errors.New("incorrect type of file expected magic number found 1a45df00"), err)
 }
