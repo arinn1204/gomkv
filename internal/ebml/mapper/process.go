@@ -1,4 +1,4 @@
-package ebml
+package mapper
 
 import (
 	"encoding/binary"
@@ -6,10 +6,11 @@ import (
 	"reflect"
 
 	"github.com/arinn1204/gomkv/internal/array"
+	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-func process[T any](item *T, id uint16, ebml *Ebml, element specification.EbmlData) error {
+func process[T any](item *T, id uint16, ebml *ebml.Ebml, element specification.EbmlData) error {
 	elemSize, err := ebml.GetSize()
 
 	if err != nil {

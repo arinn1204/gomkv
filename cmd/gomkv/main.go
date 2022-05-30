@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/filesystem"
+	"github.com/arinn1204/gomkv/pkg/ebml"
 )
 
 func main() {
@@ -21,12 +21,6 @@ func main() {
 		File: file,
 	}
 
-	ebml := ebml.Ebml{
-		File:              wrapper,
-		CurrPos:           0,
-		SpecificationPath: "../../data/matroska_ebml.xml",
-	}
-
-	doc, _ := ebml.Read()
+	doc, _ := ebml.Read(&wrapper, "../../data/matroska_ebml.xml")
 	_ = doc
 }

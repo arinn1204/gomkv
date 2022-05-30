@@ -1,10 +1,11 @@
-package ebml
+package mapper
 
 import (
-	"errors"
 	"io"
 	"testing"
 
+	"github.com/arinn1204/gomkv/internal/ebml"
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
 	"github.com/arinn1204/gomkv/pkg/types"
 	"github.com/stretchr/testify/assert"
@@ -13,10 +14,6 @@ import (
 
 func getHeaderTestData() []byte {
 	return []byte{
-		26,
-		69,
-		223,
-		163,
 		163,
 		66,
 		134,
@@ -58,14 +55,14 @@ func getHeaderTestData() []byte {
 
 func TestCanProperlySerializeHeader(t *testing.T) {
 	alreadyRead := 0
-	ebml := &mocks.Reader{}
-	reader := Ebml{
-		File:              ebml,
+	mockReader := &mocks.Reader{}
+	reader := ebml.Ebml{
+		File:              mockReader,
 		CurrPos:           0,
 		SpecificationPath: "testdata/header_ebml.xml",
 	}
 
-	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
+	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
 	call.Run(func(args mock.Arguments) {
 		retArr := args.Get(1).([]byte)
@@ -76,12 +73,11 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 		call.Return(len(retArr), nil)
 	})
 
-	doc, err := reader.Read()
+	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
+
+	doc, err := Header{}.Map(reader, &spec)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []types.Segment{
-		{},
-	}, doc.Segments)
 
 	expectedHeader := types.Header{
 		EBMLVersion:        1,
@@ -93,45 +89,19 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 		DocTypeReadVersion: 2,
 	}
 
-	assert.Equal(t, expectedHeader, doc.Header)
-}
-
-func TestFailsWhenNotEbmlDocument(t *testing.T) {
-	alreadyRead := 0
-	ebml := &mocks.Reader{}
-	reader := Ebml{
-		File:              ebml,
-		CurrPos:           0,
-		SpecificationPath: "testdata/header_ebml.xml",
-	}
-
-	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
-
-	testData := getHeaderTestData()[:3]
-	call.Run(func(args mock.Arguments) {
-		retArr := args.Get(1).([]byte)
-		count := len(retArr)
-
-		copy(retArr, testData)
-		alreadyRead += int(count)
-		call.Return(len(retArr), nil)
-	})
-
-	doc, err := reader.Read()
-	assert.Equal(t, types.EbmlDocument{}, doc)
-	assert.Equal(t, errors.New("incorrect type of file expected magic number found 1a45df00"), err)
+	assert.Equal(t, expectedHeader, doc)
 }
 
 func TestReturnsOutWhenEndOfFile(t *testing.T) {
 	alreadyRead := 0
-	ebml := &mocks.Reader{}
-	reader := Ebml{
-		File:              ebml,
+	mockReader := &mocks.Reader{}
+	reader := ebml.Ebml{
+		File:              mockReader,
 		CurrPos:           0,
 		SpecificationPath: "testdata/header_ebml.xml",
 	}
 
-	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
+	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
 	testData := getHeaderTestData()[:4]
 	call.Run(func(args mock.Arguments) {
@@ -148,10 +118,11 @@ func TestReturnsOutWhenEndOfFile(t *testing.T) {
 		}
 		alreadyRead++
 	})
-	doc, err := reader.Read()
 
-	assert.Equal(t, types.EbmlDocument{
-		Segments: []types.Segment{{}},
-	}, doc)
+	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
+
+	doc, err := Header{}.Map(reader, &spec)
+
+	assert.Equal(t, types.Header{}, doc)
 	assert.Equal(t, io.EOF, err)
 }
