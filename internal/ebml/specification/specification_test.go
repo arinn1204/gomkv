@@ -1,8 +1,10 @@
 package specification
 
 import (
-	"regexp"
+	"encoding/xml"
+	"io/fs"
 	"strconv"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +12,7 @@ import (
 
 func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 	specificationFile := "testdata/basicEbml.xml"
-	spec := GetSpecification(specificationFile)
+	spec, _ := GetSpecification(specificationFile)
 
 	ebml := EbmlData{
 		Name:              "EBMLMaxIDLength",
@@ -38,36 +40,33 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 func TestWillPanicIfFileNotFound(t *testing.T) {
 	specificationFile := "testdata/notFound.xml"
 
-	defer func() {
-		err := recover().(string)
-		if err == "" {
-			assert.Fail(t, "Expected panic when %v was not found.", specificationFile)
-		}
+	_, err := GetSpecification(specificationFile)
 
-		pattern := "Failed to open specification. -- .*"
-		match, _ := regexp.Match(pattern, []byte(err))
+	expected := &fs.PathError{
+		Op:   "open",
+		Path: specificationFile,
+		Err:  error(syscall.Errno(syscall.ENOENT)),
+	}
 
-		assert.True(t, match, "Failed to match the pattern -- '%v'. Found '%v", pattern, err)
-	}()
-
-	GetSpecification(specificationFile)
+	assert.Equal(
+		t,
+		expected,
+		err,
+	)
 }
 
 func TestWillPanicIfBadlyFormattedXml(t *testing.T) {
 	specificationFile := "testdata/badXml.xml"
 
-	defer func() {
-		err := recover().(string)
-		if err == "" {
-			assert.Fail(t, "Expected panic but not found.", specificationFile)
-		}
+	_, err := GetSpecification(specificationFile)
+	expected := &xml.SyntaxError{
+		Msg:  "unexpected EOF",
+		Line: 4,
+	}
 
-		pattern := "Failed to parse the specification xml. -- .*"
-		match, _ := regexp.Match(pattern, []byte(err))
-
-		assert.True(t, match, "Failed to match the pattern -- '%v'. But found %v", pattern, err)
-
-	}()
-
-	GetSpecification(specificationFile)
+	assert.Equal(
+		t,
+		expected,
+		err,
+	)
 }

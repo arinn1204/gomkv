@@ -3,7 +3,6 @@ package specification
 import (
 	"encoding/xml"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 )
@@ -50,8 +49,12 @@ type elementXML struct {
 //GetSpecification is a method used to read the matroska specification and return a mapped form of it that is easier to parse.
 //This form will have the structure of map[elementID]=EBMLInformation
 //The information will contain all the necessary element info: Name, Type, Range, Default, MinOccur, MaxOccur
-func GetSpecification(path string) Ebml {
-	structure := readSpecification(path)
+func GetSpecification(path string) (Ebml, error) {
+	structure, err := readSpecification(path)
+
+	if err != nil {
+		return Ebml{}, err
+	}
 
 	data := make(map[uint32]EbmlData)
 	ebml := Ebml{
@@ -62,7 +65,12 @@ func GetSpecification(path string) Ebml {
 
 	for _, element := range structure.Elements {
 		bitSize := (len(element.ID) - 2) * 4
-		id, _ := strconv.ParseUint(element.ID[2:], 16, bitSize)
+		id, err := strconv.ParseUint(element.ID[2:], 16, bitSize)
+
+		if err != nil {
+			continue
+		}
+
 		data[uint32(id)] = EbmlData{
 			Name:              element.Name,
 			Type:              element.Type,
@@ -73,15 +81,15 @@ func GetSpecification(path string) Ebml {
 		}
 	}
 
-	return ebml
+	return ebml, err
 
 }
 
-func readSpecification(path string) ebmlStructure {
+func readSpecification(path string) (ebmlStructure, error) {
 	xmlFile, err := os.Open(path)
 
 	if err != nil {
-		log.Panicf("Failed to open specification. -- '%+v'", err)
+		return ebmlStructure{}, err
 	}
 
 	defer xmlFile.Close()
@@ -93,8 +101,8 @@ func readSpecification(path string) ebmlStructure {
 	err = xml.Unmarshal(rawValue, &ebml)
 
 	if err != nil {
-		log.Panicf("Failed to parse the specification xml. -- '%+v'", err)
+		return ebmlStructure{}, err
 	}
 
-	return ebml
+	return ebml, nil
 }

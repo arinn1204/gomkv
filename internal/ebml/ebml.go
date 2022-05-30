@@ -16,20 +16,49 @@ type Ebml struct {
 	SpecificationPath string
 }
 
+type ebmlHeader struct {
+	header types.Header
+	err    error
+}
+
+type ebmlSegment struct {
+	segment types.Segment
+	err     error
+}
+
 func (ebml Ebml) Read() (types.EbmlDocument, error) {
-	spec := specification.GetSpecification(ebml.SpecificationPath)
-	err := validateMagicNum(&ebml, spec)
+	doc := types.EbmlDocument{}
+	spec, err := specification.GetSpecification(ebml.SpecificationPath)
 	if err != nil {
-		return types.EbmlDocument{}, err
+		return doc, err
 	}
 
-	header, _ := createHeader(ebml, spec)
+	err = validateMagicNum(&ebml, spec)
+	if err != nil {
+		return doc, err
+	}
 
-	return types.EbmlDocument{
-			Header:   header,
-			Segments: make([]types.Segment, 1),
-		},
-		nil
+	headerChan := make(chan (ebmlHeader))
+
+	go func() {
+		h, err := createHeader(ebml, spec)
+		header := ebmlHeader{
+			header: h,
+			err:    err,
+		}
+
+		headerChan <- header
+	}()
+
+	ebmlHeader := <-headerChan
+
+	doc.Header = ebmlHeader.header
+
+	if ebmlHeader.err != nil {
+		return doc, ebmlHeader.err
+	}
+
+	return doc, err
 }
 
 func validateMagicNum(ebml *Ebml, spec specification.Ebml) error {
