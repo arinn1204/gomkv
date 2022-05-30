@@ -21,11 +21,6 @@ type ebmlHeader struct {
 	err    error
 }
 
-type ebmlSegment struct {
-	segment types.Segment
-	err     error
-}
-
 func (ebml Ebml) Read() (types.EbmlDocument, error) {
 	doc := types.EbmlDocument{}
 	spec, err := specification.GetSpecification(ebml.SpecificationPath)
