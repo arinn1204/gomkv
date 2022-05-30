@@ -51,5 +51,4 @@ func handleErr(err error) (int, error) {
 	}
 
 	panic(err)
-
 }
