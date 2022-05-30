@@ -3,6 +3,7 @@ package ebml
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
@@ -92,7 +93,7 @@ func TestGetSizeWithDifferentWidths(t *testing.T) {
 		t.Run(
 			testName,
 			func(t *testing.T) {
-				size := reader.GetSize()
+				size, _ := reader.GetSize()
 				ebml.AssertNumberOfCalls(t, "Read", expected.numCalls)
 				assert.Equal(t, expected.size, size)
 			},
@@ -122,7 +123,7 @@ func TestEndianess(t *testing.T) {
 		call.Return(len(retArr), nil)
 	})
 
-	result := reader.GetSize()
+	result, _ := reader.GetSize()
 
 	be := make([]byte, 8)
 	binary.BigEndian.PutUint64(be, uint64(result))
@@ -137,6 +138,18 @@ func TestReadReturnsZero(t *testing.T) {
 		CurrPos: 0,
 	}
 	ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything).Return(0, nil)
-	result := reader.GetSize()
+	result, _ := reader.GetSize()
 	assert.Equal(t, int64(0), result)
+}
+
+func TestReturnsEofErrWhenFinished(t *testing.T) {
+	ebml := &mocks.Reader{}
+	reader := Ebml{
+		File:    ebml,
+		CurrPos: 0,
+	}
+	ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything).Return(0, io.EOF)
+	result, err := reader.GetSize()
+	assert.Equal(t, int64(0), result)
+	assert.Equal(t, io.EOF, err)
 }

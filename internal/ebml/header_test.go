@@ -2,6 +2,7 @@ package ebml
 
 import (
 	"errors"
+	"io"
 	"testing"
 
 	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
@@ -117,4 +118,36 @@ func TestFailsWhenNotEbmlDocument(t *testing.T) {
 	doc, err := reader.Read()
 	assert.Equal(t, types.EbmlDocument{}, doc)
 	assert.Equal(t, errors.New("incorrect type of file expected magic number found 1a45df00"), err)
+}
+
+func TestReturnsOutWhenEndOfFile(t *testing.T) {
+	alreadyRead := 0
+	ebml := &mocks.Reader{}
+	reader := Ebml{
+		File:              ebml,
+		CurrPos:           0,
+		SpecificationPath: "testdata/header_ebml.xml",
+	}
+
+	call := ebml.On("Read", mock.AnythingOfType("int64"), mock.Anything)
+
+	testData := getHeaderTestData()[:4]
+	call.Run(func(args mock.Arguments) {
+		retArr := args.Get(1).([]byte)
+
+		copy(retArr, testData)
+		if alreadyRead > 0 {
+			call.Return(
+				0,
+				io.EOF,
+			)
+		} else {
+			call.Return(alreadyRead, nil)
+		}
+		alreadyRead++
+	})
+	doc, err := reader.Read()
+
+	assert.Equal(t, types.EbmlDocument{}, doc)
+	assert.Equal(t, io.EOF, err)
 }

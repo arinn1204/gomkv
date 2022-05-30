@@ -9,7 +9,11 @@ import (
 
 func createHeader(ebml Ebml, spec specification.Ebml) (types.Header, error) {
 	startPos := ebml.CurrPos
-	headerSize := ebml.GetSize()
+	headerSize, err := ebml.GetSize()
+
+	if err != nil {
+		return types.Header{}, err
+	}
 
 	header := types.Header{}
 

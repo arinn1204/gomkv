@@ -10,7 +10,11 @@ import (
 )
 
 func process[T any](item *T, id uint16, ebml *Ebml, element specification.EbmlData) error {
-	elemSize := ebml.GetSize()
+	elemSize, err := ebml.GetSize()
+
+	if err != nil {
+		return err
+	}
 
 	buf := make([]byte, elemSize)
 	n, err := ebml.File.Read(ebml.CurrPos, buf)
