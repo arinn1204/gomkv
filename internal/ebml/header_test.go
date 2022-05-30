@@ -77,6 +77,7 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	doc, err := reader.Read()
 
 	assert.Nil(t, err)
+	assert.Nil(t, doc.Segments)
 
 	expectedHeader := types.Header{
 		EBMLVersion:        1,
@@ -89,5 +90,4 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedHeader, doc.Header)
-	assert.Nil(t, doc.Segments)
 }
