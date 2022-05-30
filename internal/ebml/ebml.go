@@ -2,6 +2,7 @@ package ebml
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
@@ -21,6 +22,11 @@ type ebmlHeader struct {
 	err    error
 }
 
+type ebmlSegment struct {
+	segment types.Segment
+	err     error
+}
+
 func (ebml Ebml) Read() (types.EbmlDocument, error) {
 	doc := types.EbmlDocument{}
 	spec, err := specification.GetSpecification(ebml.SpecificationPath)
@@ -34,6 +40,7 @@ func (ebml Ebml) Read() (types.EbmlDocument, error) {
 	}
 
 	headerChan := make(chan (ebmlHeader))
+	segmentChan := make(chan (ebmlSegment))
 
 	go func() {
 		h, err := createHeader(ebml, spec)
@@ -45,12 +52,26 @@ func (ebml Ebml) Read() (types.EbmlDocument, error) {
 		headerChan <- header
 	}()
 
+	go func() {
+		segmentChan <- ebmlSegment{}
+	}()
+
 	ebmlHeader := <-headerChan
+	segment := <-segmentChan
 
 	doc.Header = ebmlHeader.header
+	doc.Segments = append(doc.Segments, segment.segment)
 
 	if ebmlHeader.err != nil {
-		return doc, ebmlHeader.err
+		err = ebmlHeader.err
+	}
+
+	if segment.err != nil {
+		if err == nil {
+			err = segment.err
+		} else {
+			err = errors.New(err.Error() + segment.err.Error())
+		}
 	}
 
 	return doc, err

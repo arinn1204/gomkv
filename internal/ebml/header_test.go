@@ -79,7 +79,9 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	doc, err := reader.Read()
 
 	assert.Nil(t, err)
-	assert.Nil(t, doc.Segments)
+	assert.Equal(t, []types.Segment{
+		{},
+	}, doc.Segments)
 
 	expectedHeader := types.Header{
 		EBMLVersion:        1,
@@ -148,6 +150,8 @@ func TestReturnsOutWhenEndOfFile(t *testing.T) {
 	})
 	doc, err := reader.Read()
 
-	assert.Equal(t, types.EbmlDocument{}, doc)
+	assert.Equal(t, types.EbmlDocument{
+		Segments: []types.Segment{{}},
+	}, doc)
 	assert.Equal(t, io.EOF, err)
 }
