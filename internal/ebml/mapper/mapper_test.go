@@ -29,7 +29,7 @@ func getMockData(data []byte) *ebml.Ebml {
 		startPos = args.Get(0).(int64)
 	})
 
-	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
+	spec, _ := specification.GetSpecification("testdata/matroska_ebml.xml")
 	reader := ebml.Ebml{
 		File:          mockReader,
 		CurrPos:       0,
