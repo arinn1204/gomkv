@@ -119,18 +119,32 @@ func readDocument(channel chan<- ebmlObj[types.EbmlDocument], ebml ebml.Ebml) {
 
 	id, _ := mapper.GetID(&ebml, 4)
 	size, err = ebml.GetSize()
-	seg := make(chan ebmlObj[types.Segment])
+	seg := make(chan ebmlObj[types.Segment], 5)
+	numSegments := 0
 	for id == 0x18538067 && err == nil {
 		go readSegment(ebml, seg, size)
 		ebml.CurrPos += size
 		id, _ = mapper.GetID(&ebml, 4)
 		size, err = ebml.GetSize()
+		numSegments++
 	}
 
 	segments := make([]types.Segment, 0)
-	for c := range seg {
-		segments = append(segments, *c.data)
+	for numSegments != 0 {
+		segmentData := <-seg
+		segments = append(segments, *segmentData.data)
+		numSegments--
+
+		if segmentData.err != nil {
+			if err == nil {
+				err = segmentData.err
+			} else {
+				err = errors.New(err.Error() + segmentData.err.Error())
+			}
+		}
 	}
+
+	close(seg)
 
 	channel <- ebmlObj[types.EbmlDocument]{
 		data: &types.EbmlDocument{
