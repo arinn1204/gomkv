@@ -13,7 +13,7 @@ type Segment struct {
 	tags      []Tag
 	files     []AttachedFile
 	chapters  []Entry
-	seekHeads []SeekHead
+	SeekHeads []SeekHead
 	infos     []Info
 	clusters  []Cluster
 }
