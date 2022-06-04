@@ -12,10 +12,8 @@ type Segment struct{}
 
 func (Segment) Map(ebml ebml.Ebml, spec *specification.Ebml) ([]types.Segment, error) {
 	//skip the header as that is being processed elsewhere
-	err := skipNextElement(&ebml)
-
-	if err != nil {
-		return nil, err
+	if err := skipNextElement(&ebml); err != nil {
+		return nil, fmt.Errorf("Map failed to create a segment. %v", err.Error())
 	}
 
 	id, err := getID(&ebml, 4)
@@ -57,7 +55,7 @@ func skipNextElement(ebml *ebml.Ebml) error {
 	size, err := ebml.GetSize()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("skipNextElement failed - %v", err.Error())
 	}
 
 	ebml.CurrPos += size

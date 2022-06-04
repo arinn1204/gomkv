@@ -18,7 +18,6 @@ type ebmlObj[T any] struct {
 }
 
 func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
-
 	ebml := ebml.Ebml{
 		File:              file,
 		CurrPos:           0,
@@ -31,57 +30,59 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 		return doc, err
 	}
 
-	err = validateMagicNum(&ebml, spec)
-	if err != nil {
+	if err = validateMagicNum(&ebml, &spec); err != nil {
 		return doc, err
 	}
 
-	headerChan := make(chan (ebmlObj[types.Header]))
-	segmentChan := make(chan (ebmlObj[[]types.Segment]))
-
-	go func() {
-		h, err := mapper.Header{}.Map(ebml, &spec)
-		header := ebmlObj[types.Header]{
-			data: h,
-			err:  err,
-		}
-
-		headerChan <- header
-	}()
-
-	go func() {
-		segments, err := mapper.Segment{}.Map(ebml, &spec)
-
-		data := ebmlObj[[]types.Segment]{
-			data: segments,
-			err:  err,
-		}
-
-		segmentChan <- data
-	}()
-
-	ebmlHeader := <-headerChan
-	segment := <-segmentChan
-
-	doc.Header = ebmlHeader.data
-	doc.Segments = segment.data
-
-	if ebmlHeader.err != nil {
-		err = ebmlHeader.err
-	}
-
-	if segment.err != nil {
-		if err == nil {
-			err = segment.err
-		} else {
-			err = errors.New(err.Error() + segment.err.Error())
-		}
-	}
-
-	return doc, err
+	return buildDoc(&ebml, &spec)
 }
 
-func validateMagicNum(ebml *ebml.Ebml, spec specification.Ebml) error {
+func buildDoc(ebml *ebml.Ebml, spec *specification.Ebml) (types.EbmlDocument, error) {
+	header := getData[types.Header](mapper.Header{}, *ebml, spec)
+	segments := getData[[]types.Segment](mapper.Segment{}, *ebml, spec)
+
+	var err error
+
+	if header.err != nil {
+		err = header.err
+	}
+
+	if segments.err != nil {
+		if err == nil {
+			err = segments.err
+		} else {
+			err = errors.New(err.Error() + segments.err.Error())
+		}
+	}
+
+	return types.EbmlDocument{
+		Header:   header.data,
+		Segments: segments.data,
+	}, err
+}
+
+func getData[T any](mapper mapper.Mapper[T], ebml ebml.Ebml, spec *specification.Ebml) ebmlObj[T] {
+	channel := createItem(mapper, ebml, spec)
+	data := <-channel
+	return data
+}
+
+func createItem[T any](mapper mapper.Mapper[T], ebml ebml.Ebml, spec *specification.Ebml) <-chan ebmlObj[T] {
+	channel := make(chan ebmlObj[T])
+
+	go func() {
+		data, err := mapper.Map(ebml, spec)
+		obj := ebmlObj[T]{
+			data: data,
+			err:  err,
+		}
+		channel <- obj
+	}()
+
+	return channel
+}
+
+func validateMagicNum(ebml *ebml.Ebml, spec *specification.Ebml) error {
 	idBuf := make([]byte, 4)
 	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
 
