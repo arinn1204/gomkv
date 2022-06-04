@@ -1,7 +1,6 @@
 package ebml
 
 import (
-	"encoding/binary"
 	"errors"
 	"fmt"
 
@@ -13,88 +12,148 @@ import (
 )
 
 type ebmlObj[T any] struct {
-	data T
+	data *T
 	err  error
 }
 
-func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
-	ebml := ebml.Ebml{
-		File:              file,
-		CurrPos:           0,
-		SpecificationPath: specPath,
-	}
-
-	doc := types.EbmlDocument{}
-	spec, err := specification.GetSpecification(ebml.SpecificationPath)
+func Read(file *filesystem.File, specPath string) ([]types.EbmlDocument, error) {
+	spec, err := specification.GetSpecification(specPath)
 	if err != nil {
-		return doc, err
+		return nil, err
+	}
+	ebml := ebml.Ebml{
+		File:          file,
+		CurrPos:       0,
+		Specification: spec,
 	}
 
-	if err = validateMagicNum(&ebml, &spec); err != nil {
-		return doc, err
-	}
-
-	return buildDoc(&ebml, &spec)
+	return buildDoc(&ebml)
 }
 
-func buildDoc(ebml *ebml.Ebml, spec *specification.Ebml) (types.EbmlDocument, error) {
-	headerChan := createItem[types.Header](mapper.Header{}, *ebml, spec)
-	segmentsChan := createItem[[]types.Segment](mapper.Segment{}, *ebml, spec)
-
-	header := <-headerChan
-	segments := <-segmentsChan
-
+func buildDoc(ebml *ebml.Ebml) ([]types.EbmlDocument, error) {
 	var err error
+	var id uint32
+	channel := make(chan ebmlObj[types.EbmlDocument])
 
-	if header.err != nil {
-		err = header.err
+	for {
+		id, err = mapper.GetID(ebml, 4)
+
+		if err != nil {
+			break
+		}
+
+		if id == 0x1A45DFA3 { //EBML Header
+			go readDocument(channel, *ebml)
+			//Incrememt to the next document if within a stream
+			if err = incDoc(ebml); err != nil {
+				break
+			}
+		} else { //Unknown top level element
+			err = fmt.Errorf("unknown top level element (%x)", id)
+			break
+		}
 	}
 
-	if segments.err != nil {
+	docs := make([]types.EbmlDocument, 0)
+	for c := range channel {
+		docs = append(docs, types.EbmlDocument{
+			Header:   c.data.Header,
+			Segments: c.data.Segments,
+		})
+
 		if err == nil {
-			err = segments.err
+			err = c.err
 		} else {
-			err = errors.New(err.Error() + segments.err.Error())
+			err = errors.New(err.Error() + c.err.Error())
 		}
 	}
 
-	return types.EbmlDocument{
-		Header:   header.data,
-		Segments: segments.data,
-	}, err
+	return docs, err
 }
 
-func createItem[T any](mapper mapper.Mapper[T], ebml ebml.Ebml, spec *specification.Ebml) <-chan ebmlObj[T] {
-	channel := make(chan ebmlObj[T])
-
-	go func() {
-		data, err := mapper.Map(ebml, spec)
-		obj := ebmlObj[T]{
-			data: data,
-			err:  err,
-		}
-		channel <- obj
-	}()
-
-	return channel
-}
-
-func validateMagicNum(ebml *ebml.Ebml, spec *specification.Ebml) error {
-	idBuf := make([]byte, 4)
-	n, err := ebml.File.Read(ebml.CurrPos, idBuf)
-
+func incDoc(ebml *ebml.Ebml) error {
+	size, err := ebml.GetSize()
 	if err != nil {
 		return err
 	}
+	ebml.CurrPos += size
 
-	ebml.CurrPos += int64(n)
+	id, err := mapper.GetID(ebml, 4)
 
-	id := binary.BigEndian.Uint32(idBuf)
-	elem := spec.Data[id]
+	//EBML documents allow for multiple segments
+	//so we will skip all the segments to allow the documents to be read in parallel
+	for id == 0x18538067 && err == nil {
+		size, _ = ebml.GetSize()
+		ebml.CurrPos += size
+		id, err = mapper.GetID(ebml, 4)
+	}
+	return err
+}
 
-	if elem.Name != "EBML" {
-		return fmt.Errorf("incorrect type of file expected magic number found %x", id)
+func readDocument(channel chan<- ebmlObj[types.EbmlDocument], ebml ebml.Ebml) {
+	size, err := ebml.GetSize()
+
+	if err != nil {
+		channel <- ebmlObj[types.EbmlDocument]{
+			data: nil,
+			err:  err,
+		}
+		close(channel)
+		return
 	}
 
-	return nil
+	header, err := mapper.Header{}.Map(size, ebml)
+	ebml.CurrPos += size
+
+	if err != nil {
+		channel <- ebmlObj[types.EbmlDocument]{
+			data: &types.EbmlDocument{
+				Header:   header,
+				Segments: nil,
+			},
+			err: err,
+		}
+		close(channel)
+		return
+	}
+
+	id, _ := mapper.GetID(&ebml, 4)
+	size, err = ebml.GetSize()
+	seg := make(chan ebmlObj[types.Segment])
+	for id == 0x18538067 && err == nil {
+		go readSegment(ebml, seg, size)
+		ebml.CurrPos += size
+		id, _ = mapper.GetID(&ebml, 4)
+		size, err = ebml.GetSize()
+	}
+
+	segments := make([]types.Segment, 0)
+	for c := range seg {
+		segments = append(segments, *c.data)
+	}
+
+	channel <- ebmlObj[types.EbmlDocument]{
+		data: &types.EbmlDocument{
+			Header:   header,
+			Segments: segments,
+		},
+		err: err,
+	}
+
+	if err != nil {
+		close(channel)
+	}
+}
+
+func readSegment(ebml ebml.Ebml, seg chan<- ebmlObj[types.Segment], size int64) {
+	segment, err := mapper.Segment{}.Map(size, ebml)
+	seg <- ebmlObj[types.Segment]{
+		data: segment,
+		err:  err,
+	}
+	ebml.CurrPos += size
+
+	if err != nil {
+		close(seg)
+	}
 }
