@@ -35,9 +35,7 @@ func (Header) Map(ebml ebml.Ebml, spec *specification.Ebml) (types.Header, error
 		}
 
 		element := spec.Data[id]
-		err = process(&header, uint16(id), &ebml, element)
-
-		if err != nil {
+		if err = process(&header, uint16(id), &ebml, element); err != nil {
 			return header, err
 		}
 	}
