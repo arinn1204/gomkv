@@ -8,8 +8,8 @@ import (
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
-type Mapper interface {
-	Map(ebml ebml.Ebml, spec *specification.Ebml) (types.Header, error)
+type Mapper[T any] interface {
+	Map(ebml ebml.Ebml, spec *specification.Ebml) (T, error)
 }
 
 type Header struct{}

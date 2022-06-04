@@ -8,8 +8,8 @@ import (
 
 type Segment struct{}
 
-func (Segment) Map(ebml ebml.Ebml, spec *specification.Ebml) (types.Segment, error) {
-	segment := types.Segment{}
+func (Segment) Map(ebml ebml.Ebml, spec *specification.Ebml) ([]types.Segment, error) {
+	segments := make([]types.Segment, 0)
 
-	return segment, nil
+	return segments, nil
 }

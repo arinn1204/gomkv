@@ -37,7 +37,7 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 	}
 
 	headerChan := make(chan (ebmlObj[types.Header]))
-	segmentChan := make(chan (ebmlObj[types.Segment]))
+	segmentChan := make(chan (ebmlObj[[]types.Segment]))
 
 	go func() {
 		h, err := mapper.Header{}.Map(ebml, &spec)
@@ -50,10 +50,10 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 	}()
 
 	go func() {
-		segment, err := mapper.Segment{}.Map(ebml, &spec)
+		segments, err := mapper.Segment{}.Map(ebml, &spec)
 
-		data := ebmlObj[types.Segment]{
-			data: segment,
+		data := ebmlObj[[]types.Segment]{
+			data: segments,
 			err:  err,
 		}
 
@@ -64,7 +64,7 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 	segment := <-segmentChan
 
 	doc.Header = ebmlHeader.data
-	doc.Segments = append(doc.Segments, segment.data)
+	doc.Segments = segment.data
 
 	if ebmlHeader.err != nil {
 		err = ebmlHeader.err
