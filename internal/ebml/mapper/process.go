@@ -10,7 +10,7 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-func process[T any](item *T, id uint16, ebml *ebml.Ebml, element *specification.EbmlData) error {
+func process[T any](item *T, id uint16, ebml *ebml.Ebml) error {
 	elemSize, err := ebml.GetSize()
 
 	if err != nil {
@@ -25,6 +25,7 @@ func process[T any](item *T, id uint16, ebml *ebml.Ebml, element *specification.
 	}
 
 	ebml.CurrPos += int64(n)
+	element := ebml.Specification.Data[uint32(id)]
 
 	elems := reflect.ValueOf(item).Elem()
 	field := elems.FieldByName(element.Name)
@@ -33,6 +34,12 @@ func process[T any](item *T, id uint16, ebml *ebml.Ebml, element *specification.
 
 func setElementData(buf []byte, element *specification.EbmlData, field *reflect.Value) error {
 	switch element.Type {
+	case "binary":
+		paddedBuf := make([]byte, 8)
+		array.Pad(buf, paddedBuf)
+		data := binary.BigEndian.Uint64(paddedBuf)
+		field.Set(reflect.ValueOf(data))
+		return nil
 	case "uinteger":
 		paddedBuf := make([]byte, 8)
 		array.Pad(buf, paddedBuf)
@@ -40,11 +47,9 @@ func setElementData(buf []byte, element *specification.EbmlData, field *reflect.
 		field.Set(reflect.ValueOf(uint(data)))
 		return nil
 	case "utf-8":
+		fallthrough
 	case "string":
 		field.Set(reflect.ValueOf(string(buf)))
-		return nil
-	case "binary":
-		field.Set(reflect.ValueOf(buf))
 		return nil
 	case "date":
 		paddedBuf := make([]byte, 8)

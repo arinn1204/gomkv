@@ -17,7 +17,8 @@ func (Segment) Map(size int64, ebml ebml.Ebml) (*types.Segment, error) {
 	var segment types.Segment
 
 	for ebml.CurrPos < endPos {
-		id, _ = GetID(&ebml, 2)
+		id, _ = GetID(&ebml, 4)
+
 		elementSize, err = ebml.GetSize()
 		if err != nil {
 			break
@@ -33,16 +34,18 @@ func (Segment) Map(size int64, ebml ebml.Ebml) (*types.Segment, error) {
 }
 
 func getSubElement(ebml *ebml.Ebml, size int64, element *specification.EbmlData, segment *types.Segment) chan<- error {
-	var err error
 	errorChan := make(chan error)
 	switch element.Name {
 	case "SeekHead":
-		go func() {
-			segment.SeekHeads, err = SeekHead{}.Map(size, *ebml)
+		func() {
+			seekHead, err := SeekHead{}.Map(size, *ebml)
+			segment.SeekHeads = append(segment.SeekHeads, *seekHead)
 			if err != nil {
 				errorChan <- err
 			}
 		}()
+	case "Void":
+		break
 	}
 
 	return errorChan

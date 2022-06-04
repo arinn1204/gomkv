@@ -28,8 +28,7 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 			return nil, err
 		}
 
-		element := ebml.Specification.Data[id]
-		if err = process(&header, uint16(id), &ebml, element); err != nil {
+		if err = process(&header, uint16(id), &ebml); err != nil {
 			return nil, err
 		}
 	}
@@ -38,20 +37,33 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 }
 
 //GetID is a function that will return the ID of the following EBML element
-func GetID(ebml *ebml.Ebml, count int) (uint32, error) {
-	buf := make([]byte, count)
-	n, err := ebml.File.Read(ebml.CurrPos, buf)
-	if err != nil {
-		if err == io.EOF {
-			return 0, err
+func GetID(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+	buf := make([]byte, maxCount)
+	byteToRead := 1
+
+	var id uint32
+
+	for byteToRead <= maxCount {
+		_, err := ebml.File.Read(ebml.CurrPos, buf[maxCount-byteToRead:maxCount])
+		if err != nil {
+			if err == io.EOF {
+				return 0, err
+			}
+			return 0, fmt.Errorf("getID failed to read: %v", err.Error())
 		}
-		return 0, fmt.Errorf("getID failed to read: %v", err.Error())
+
+		paddedBuf := make([]byte, 4)
+		array.Pad(buf, paddedBuf)
+		id = binary.BigEndian.Uint32(paddedBuf)
+
+		if ebml.Specification.Data[id] != nil {
+			break
+		}
+
+		byteToRead++
 	}
 
-	ebml.CurrPos += int64(n)
+	ebml.CurrPos += int64(byteToRead)
 
-	paddedBuf := make([]byte, 4)
-	array.Pad(buf, paddedBuf)
-
-	return binary.BigEndian.Uint32(paddedBuf), nil
+	return id, nil
 }

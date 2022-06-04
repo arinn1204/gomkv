@@ -7,6 +7,6 @@ type SeekHead struct {
 
 //Seek contains the location of other elements in the ebml document
 type Seek struct {
-	Position  uint64
-	ElementID uint32
+	SeekPosition uint
+	SeekID       uint64
 }
