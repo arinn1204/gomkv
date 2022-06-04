@@ -53,35 +53,9 @@ func getHeaderTestData() []byte {
 }
 
 func TestCanProperlySerializeHeader(t *testing.T) {
-	alreadyRead := 0
-	mockReader := &mocks.Reader{}
+	reader := getMockData(getHeaderTestData())
 
-	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
-
-	startPos := int64(0)
-	call.Run(func(args mock.Arguments) {
-		retArr := args.Get(1).([]byte)
-		count := len(retArr)
-
-		startArr := alreadyRead
-		if startPos == args.Get(0).(int64) && alreadyRead > 0 {
-			startArr--
-			count--
-		}
-		copy(retArr, getHeaderTestData()[startArr:alreadyRead+int(count)])
-		alreadyRead += int(count)
-		call.Return(len(retArr), nil)
-		startPos = args.Get(0).(int64)
-	})
-
-	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
-	reader := ebml.Ebml{
-		File:          mockReader,
-		CurrPos:       0,
-		Specification: spec,
-	}
-
-	doc, err := Header{}.Map(int64(len(getHeaderTestData())), reader)
+	doc, err := Header{}.Map(int64(len(getHeaderTestData())), *reader)
 
 	assert.Nil(t, err)
 
