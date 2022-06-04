@@ -15,7 +15,9 @@ func (Segment) Map(ebml ebml.Ebml, spec *specification.Ebml) ([]types.Segment, e
 		return nil, err
 	}
 
-	return make([]types.Segment, 0), nil
+	segments := make([]types.Segment, 0)
+
+	return segments, nil
 }
 
 func skipHeader(ebml *ebml.Ebml) error {
