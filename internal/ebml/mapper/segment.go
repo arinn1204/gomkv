@@ -9,7 +9,23 @@ import (
 type Segment struct{}
 
 func (Segment) Map(ebml ebml.Ebml, spec *specification.Ebml) ([]types.Segment, error) {
-	segments := make([]types.Segment, 0)
+	err := skipHeader(&ebml)
 
-	return segments, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return make([]types.Segment, 0), nil
+}
+
+func skipHeader(ebml *ebml.Ebml) error {
+	size, err := ebml.GetSize()
+
+	if err != nil {
+		return err
+	}
+
+	ebml.CurrPos += size
+
+	return nil
 }
