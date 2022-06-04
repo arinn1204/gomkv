@@ -11,17 +11,17 @@ import (
 )
 
 type Mapper[T any] interface {
-	Map(size uint32, ebml ebml.Ebml) (*T, error)
+	Map(size int64, ebml ebml.Ebml) (*T, error)
 }
 
 type Header struct{}
 
-func (Header) Map(size uint32, ebml ebml.Ebml) (*types.Header, error) {
+func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 	startPos := ebml.CurrPos
 
 	header := types.Header{}
 
-	for ebml.CurrPos < startPos+int64(size) {
+	for ebml.CurrPos < startPos+size {
 		id, err := GetID(&ebml, 2)
 
 		if err != nil {

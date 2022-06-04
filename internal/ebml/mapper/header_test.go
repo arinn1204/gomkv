@@ -74,7 +74,7 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 		Specification: spec,
 	}
 
-	doc, err := Header{}.Map(uint32(len(getHeaderTestData())), reader)
+	doc, err := Header{}.Map(int64(len(getHeaderTestData())), reader)
 
 	assert.Nil(t, err)
 
@@ -120,7 +120,7 @@ func TestReturnsOutWhenEndOfFile(t *testing.T) {
 		Specification: spec,
 	}
 
-	doc, err := Header{}.Map(uint32(len(getHeaderTestData())), reader)
+	doc, err := Header{}.Map(int64(len(getHeaderTestData())), reader)
 
 	assert.Nil(t, doc)
 	assert.Equal(t, io.EOF, err)

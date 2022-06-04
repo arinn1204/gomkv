@@ -25,8 +25,8 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 
 	id, _ := strconv.ParseInt("42F2", 16, 16)
 
-	data := make(map[uint32]EbmlData)
-	data[uint32(id)] = ebml
+	data := make(map[uint32]*EbmlData)
+	data[uint32(id)] = &ebml
 
 	ebmlStructure := Ebml{
 		Data:         data,

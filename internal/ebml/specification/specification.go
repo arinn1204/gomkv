@@ -12,7 +12,7 @@ import (
 //The doctype and version come directly from the specification used to parse the file
 //not from the file itself
 type Ebml struct {
-	Data         map[uint32]EbmlData
+	Data         map[uint32]*EbmlData
 	DocumentType string
 	Version      int
 }
@@ -56,7 +56,7 @@ func GetSpecification(path string) (*Ebml, error) {
 		return nil, err
 	}
 
-	data := make(map[uint32]EbmlData)
+	data := make(map[uint32]*EbmlData)
 	ebml := Ebml{
 		Version:      structure.Version,
 		DocumentType: structure.DocumentType,
@@ -71,7 +71,7 @@ func GetSpecification(path string) (*Ebml, error) {
 			continue
 		}
 
-		data[uint32(id)] = EbmlData{
+		data[uint32(id)] = &EbmlData{
 			Name:              element.Name,
 			Type:              element.Type,
 			Range:             element.Range,

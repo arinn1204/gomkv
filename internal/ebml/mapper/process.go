@@ -10,7 +10,7 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-func process[T any](item *T, id uint16, ebml *ebml.Ebml, element specification.EbmlData) error {
+func process[T any](item *T, id uint16, ebml *ebml.Ebml, element *specification.EbmlData) error {
 	elemSize, err := ebml.GetSize()
 
 	if err != nil {
@@ -31,7 +31,7 @@ func process[T any](item *T, id uint16, ebml *ebml.Ebml, element specification.E
 	return setElementData(buf, element, &field)
 }
 
-func setElementData(buf []byte, element specification.EbmlData, field *reflect.Value) error {
+func setElementData(buf []byte, element *specification.EbmlData, field *reflect.Value) error {
 	switch element.Type {
 	case "uinteger":
 		paddedBuf := make([]byte, 8)
