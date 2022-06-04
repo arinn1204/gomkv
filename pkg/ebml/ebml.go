@@ -38,8 +38,11 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 }
 
 func buildDoc(ebml *ebml.Ebml, spec *specification.Ebml) (types.EbmlDocument, error) {
-	header := getData[types.Header](mapper.Header{}, *ebml, spec)
-	segments := getData[[]types.Segment](mapper.Segment{}, *ebml, spec)
+	headerChan := createItem[types.Header](mapper.Header{}, *ebml, spec)
+	segmentsChan := createItem[[]types.Segment](mapper.Segment{}, *ebml, spec)
+
+	header := <-headerChan
+	segments := <-segmentsChan
 
 	var err error
 
@@ -59,12 +62,6 @@ func buildDoc(ebml *ebml.Ebml, spec *specification.Ebml) (types.EbmlDocument, er
 		Header:   header.data,
 		Segments: segments.data,
 	}, err
-}
-
-func getData[T any](mapper mapper.Mapper[T], ebml ebml.Ebml, spec *specification.Ebml) ebmlObj[T] {
-	channel := createItem(mapper, ebml, spec)
-	data := <-channel
-	return data
 }
 
 func createItem[T any](mapper mapper.Mapper[T], ebml ebml.Ebml, spec *specification.Ebml) <-chan ebmlObj[T] {
