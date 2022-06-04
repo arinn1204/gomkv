@@ -3,14 +3,15 @@ package ebml
 import (
 	"encoding/binary"
 
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/internal/filesystem"
 )
 
 //Ebml will contain the IoReader as well as the current position of this members stream
 type Ebml struct {
-	File              filesystem.Reader
-	CurrPos           int64
-	SpecificationPath string
+	File          filesystem.Reader
+	CurrPos       int64
+	Specification *specification.Ebml
 }
 
 //GetSize will return the size of the proceeding EBML element

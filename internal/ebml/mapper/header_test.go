@@ -14,7 +14,6 @@ import (
 
 func getHeaderTestData() []byte {
 	return []byte{
-		163,
 		66,
 		134,
 		129,
@@ -56,11 +55,6 @@ func getHeaderTestData() []byte {
 func TestCanProperlySerializeHeader(t *testing.T) {
 	alreadyRead := 0
 	mockReader := &mocks.Reader{}
-	reader := ebml.Ebml{
-		File:              mockReader,
-		CurrPos:           0,
-		SpecificationPath: "testdata/header_ebml.xml",
-	}
 
 	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
@@ -74,8 +68,13 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	})
 
 	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
+	reader := ebml.Ebml{
+		File:          mockReader,
+		CurrPos:       0,
+		Specification: spec,
+	}
 
-	doc, err := Header{}.Map(reader, &spec)
+	doc, err := Header{}.Map(uint32(len(getHeaderTestData())), reader)
 
 	assert.Nil(t, err)
 
@@ -89,17 +88,12 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 		DocTypeReadVersion: 2,
 	}
 
-	assert.Equal(t, expectedHeader, doc)
+	assert.Equal(t, expectedHeader, *doc)
 }
 
 func TestReturnsOutWhenEndOfFile(t *testing.T) {
 	alreadyRead := 0
 	mockReader := &mocks.Reader{}
-	reader := ebml.Ebml{
-		File:              mockReader,
-		CurrPos:           0,
-		SpecificationPath: "testdata/header_ebml.xml",
-	}
 
 	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
 
@@ -120,9 +114,14 @@ func TestReturnsOutWhenEndOfFile(t *testing.T) {
 	})
 
 	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
+	reader := ebml.Ebml{
+		File:          mockReader,
+		CurrPos:       0,
+		Specification: spec,
+	}
 
-	doc, err := Header{}.Map(reader, &spec)
+	doc, err := Header{}.Map(uint32(len(getHeaderTestData())), reader)
 
-	assert.Equal(t, types.Header{}, doc)
+	assert.Nil(t, doc)
 	assert.Equal(t, io.EOF, err)
 }

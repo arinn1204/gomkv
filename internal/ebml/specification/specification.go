@@ -49,11 +49,11 @@ type elementXML struct {
 //GetSpecification is a method used to read the matroska specification and return a mapped form of it that is easier to parse.
 //This form will have the structure of map[elementID]=EBMLInformation
 //The information will contain all the necessary element info: Name, Type, Range, Default, MinOccur, MaxOccur
-func GetSpecification(path string) (Ebml, error) {
+func GetSpecification(path string) (*Ebml, error) {
 	structure, err := readSpecification(path)
 
 	if err != nil {
-		return Ebml{}, err
+		return nil, err
 	}
 
 	data := make(map[uint32]EbmlData)
@@ -81,7 +81,7 @@ func GetSpecification(path string) (Ebml, error) {
 		}
 	}
 
-	return ebml, err
+	return &ebml, err
 
 }
 

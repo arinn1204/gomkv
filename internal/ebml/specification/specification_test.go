@@ -34,7 +34,7 @@ func TestCanSerializeTopLevelEbmlSpec(t *testing.T) {
 		DocumentType: "matroska",
 	}
 
-	assert.Equal(t, ebmlStructure, spec)
+	assert.Equal(t, ebmlStructure, *spec)
 }
 
 func TestWillPanicIfFileNotFound(t *testing.T) {
