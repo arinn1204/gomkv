@@ -12,14 +12,9 @@ import (
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
-type ebmlHeader struct {
-	header types.Header
-	err    error
-}
-
-type ebmlSegment struct {
-	segment types.Segment
-	err     error
+type ebmlObj[T any] struct {
+	data T
+	err  error
 }
 
 func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
@@ -41,28 +36,35 @@ func Read(file *filesystem.File, specPath string) (types.EbmlDocument, error) {
 		return doc, err
 	}
 
-	headerChan := make(chan (ebmlHeader))
-	segmentChan := make(chan (ebmlSegment))
+	headerChan := make(chan (ebmlObj[types.Header]))
+	segmentChan := make(chan (ebmlObj[types.Segment]))
 
 	go func() {
 		h, err := mapper.Header{}.Map(ebml, &spec)
-		ebmlHeader := ebmlHeader{
-			header: h,
-			err:    err,
+		header := ebmlObj[types.Header]{
+			data: h,
+			err:  err,
 		}
 
-		headerChan <- ebmlHeader
+		headerChan <- header
 	}()
 
 	go func() {
-		segmentChan <- ebmlSegment{}
+		segment, err := mapper.Segment{}.Map(ebml, &spec)
+
+		data := ebmlObj[types.Segment]{
+			data: segment,
+			err:  err,
+		}
+
+		segmentChan <- data
 	}()
 
 	ebmlHeader := <-headerChan
 	segment := <-segmentChan
 
-	doc.Header = ebmlHeader.header
-	doc.Segments = append(doc.Segments, segment.segment)
+	doc.Header = ebmlHeader.data
+	doc.Segments = append(doc.Segments, segment.data)
 
 	if ebmlHeader.err != nil {
 		err = ebmlHeader.err
