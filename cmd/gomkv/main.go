@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/arinn1204/gomkv/internal/filesystem"
@@ -22,5 +24,6 @@ func main() {
 	}
 
 	doc, _ := ebml.Read(&wrapper, "../../data/matroska_ebml.xml")
-	_ = doc
+	jsonDoc, _ := json.MarshalIndent(doc, "", "  ")
+	fmt.Println(string(jsonDoc))
 }
