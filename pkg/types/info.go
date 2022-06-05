@@ -22,7 +22,7 @@ type Info struct {
 
 //TranslationInformation is the mapping between this segment and other segments in a given chapter
 type TranslationInformation struct {
-	editionUID   uint   `json:",omitempty"`
-	codec        uint   `json:",omitempty"`
-	translateIDs []byte `json:",omitempty"`
+	EditionUID   uint   `json:",omitempty"`
+	Codec        uint   `json:",omitempty"`
+	TranslateIDs []byte `json:",omitempty"`
 }
