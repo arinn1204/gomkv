@@ -20,7 +20,7 @@ func (seekHead) Map(size int64, ebml ebml.Ebml) (*types.SeekHead, error) {
 				ebml.CurrPos = endPos
 				return fmt.Errorf("expecting element Seek but got '%v'", element.Name)
 			}
-			seek, err := createSeek(&ebml, size)
+			seek, err := createSeek(&ebml, endPos)
 			seekHead.Seeks = append(seekHead.Seeks, seek)
 			return err
 		},
