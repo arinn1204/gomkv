@@ -60,13 +60,15 @@ func TestCanProperlyParseData(t *testing.T) {
 			return info.MuxingApp
 		case 7:
 			return info.WritingApp
+		case 8:
+			return info.TimestampScale
 		}
 
 		return uuid.Nil
 	}
 
 	var expected interface{}
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 9; i++ {
 		//The test itself
 		var testName string
 		switch i {
@@ -112,6 +114,12 @@ func TestCanProperlyParseData(t *testing.T) {
 			testName = "Writing App"
 			expected = "Writing App"
 			testData = []byte(expected.(string))
+		case 8:
+			elementId = 0x2AD7B1
+			testName = "TimestampScale"
+			testData = make([]byte, 8)
+			binary.BigEndian.PutUint64(testData, 1_000_000)
+			expected = uint(1_000_000)
 		}
 
 		t.Run(

@@ -54,8 +54,6 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 			}
 
 			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(val))
-		case "Translations":
-			//todo fill me out
 		default:
 			process(&info, id, &ebml)
 		}
