@@ -74,14 +74,14 @@ func seekElements(ebml *ebml.Ebml, segmentStart int64, segmentSize int64, segmen
 		}
 
 		for i := 0; i < len(seekHead.Seeks); i++ {
-			c := <-errorChan
-			if c == nil {
+			elemErr := <-errorChan
+			if elemErr == nil {
 				continue
 			}
 			if err == nil {
-				err = c
+				err = elemErr
 			} else {
-				err = errors.New(err.Error() + c.Error())
+				err = errors.New(err.Error() + elemErr.Error())
 			}
 		}
 
