@@ -52,7 +52,7 @@ func readUntil(ebml *ebml.Ebml, end int64, process func(id uint32, endPosition i
 		element := ebml.Specification.Data[id]
 
 		if element == nil {
-			err = utils.ConcatErr(err, fmt.Errorf("uknown element of id 0x%X", id))
+			err = utils.ConcatErr(err, fmt.Errorf("unknown element of id 0x%X", id))
 			ebml.CurrPos += size
 			continue
 		}

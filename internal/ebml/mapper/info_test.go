@@ -169,12 +169,12 @@ func TestWillAddToErrors(t *testing.T) {
 		var expected error
 		switch i {
 		case 0:
-			expected = errors.New("foobar")
+			expected = errors.New("foobar::unknown element of id 0x0")
 			GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
 				return 0, errors.New("foobar")
 			}
 		case 1:
-			expected = errors.New("unrecognized id of 0xFFFFF")
+			expected = errors.New("unknown element of id 0xFFFFF")
 			GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
 				return 0xFFFFF, nil
 			}
