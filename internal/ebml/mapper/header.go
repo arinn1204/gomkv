@@ -28,7 +28,7 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 			return nil, err
 		}
 
-		if err = process(&header, uint16(id), &ebml); err != nil {
+		if err = process(&header, id, &ebml); err != nil {
 			return nil, err
 		}
 	}

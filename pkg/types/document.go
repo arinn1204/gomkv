@@ -14,7 +14,7 @@ type Segment struct {
 	files     []AttachedFile
 	chapters  []Entry
 	SeekHeads []SeekHead
-	Infos     []Info
+	Info      *Info
 	clusters  []Cluster
 }
 

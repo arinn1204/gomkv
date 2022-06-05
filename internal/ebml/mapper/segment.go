@@ -109,8 +109,8 @@ func getSubElement(ebml *ebml.Ebml, size int64, element *specification.EbmlData,
 
 	switch element.Name {
 	case "Info":
-		infos, infoErr := info{}.Map(size, *ebml)
-		segment.Infos = infos
+		info, infoErr := info{}.Map(size, *ebml)
+		segment.Info = info
 		if infoErr != nil {
 			err = errors.New("info creation failed - " + infoErr.Error())
 		}

@@ -54,7 +54,7 @@ func createSeeks(ebml ebml.Ebml, size int64) ([]types.Seek, error) {
 				break
 			}
 
-			process(&seek, uint16(elemId), &ebml)
+			process(&seek, elemId, &ebml)
 		}
 		if err != nil {
 			break

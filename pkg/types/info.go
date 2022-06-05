@@ -4,23 +4,20 @@ import "github.com/google/uuid"
 
 //Info contains the general information about the segment
 type Info struct {
-	current       SegmentInformation
-	previous      SegmentInformation
-	next          SegmentInformation
-	segmentFamily uuid.UUID
-	timescale     uint
-	duration      float32
-	date          uint64
-	title         string
-	muxingApp     string
-	writingApp    string
-	translations  []TranslationInformation
-}
-
-//SegmentInformation is a reference to the location in the stream that the filename is
-type SegmentInformation struct {
-	UID      uuid.UUID
-	filename string
+	SegmentUID      uuid.UUID
+	SegmentFilename string
+	NextUID         uuid.UUID
+	NextFilename    string
+	PrevUID         uuid.UUID
+	PrevFilename    string
+	SegmentFamily   uuid.UUID
+	TimestampScale  uint
+	Duration        float32
+	DateUTC         uint64
+	Title           string
+	MuxingApp       string
+	WritingApp      string
+	Translations    []TranslationInformation
 }
 
 //TranslationInformation is the mapping between this segment and other segments in a given chapter
