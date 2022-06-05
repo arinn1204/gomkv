@@ -10,9 +10,8 @@ import (
 )
 
 func main() {
-	betterCallSaul := "../../data/Better.Call.Saul.S06.SPECIAL.American.Greed.James.McGill.1080p.AMZN.WEB-DL.DDP2.0.H.264-SKiZOiD.mkv"
-	//smallMkv := "/Users/arinn/Projects/VideoCatalogue/source/test/Grains.Tests.Integration/TestData/CodecParser/small.mkv"
-	file, err := os.Open(betterCallSaul)
+	var filePath string
+	file, err := os.Open(filePath)
 
 	if err != nil {
 		panic(err)
