@@ -32,6 +32,16 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 		}
 
 		switch element.Name {
+		case "Duration":
+			fallthrough
+		case "MuxingApp":
+			fallthrough
+		case "WritingApp":
+			fallthrough
+		case "TimestampScale":
+			fallthrough
+		case "DateUTC":
+			process(&info, id, &ebml)
 		case "SegmentFamily":
 			fallthrough
 		case "SegmentUID":
@@ -55,7 +65,13 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 
 			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(val))
 		default:
-			process(&info, id, &ebml)
+			elementSize, sizeErr := getSize(&ebml)
+			if sizeErr != nil {
+				err = utils.ConcatErr(err, fmt.Errorf("failed to get size of %x", id))
+				continue
+			}
+
+			ebml.CurrPos += elementSize
 		}
 
 	}
