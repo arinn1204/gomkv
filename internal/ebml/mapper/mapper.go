@@ -1,6 +1,13 @@
 package mapper
 
-import "github.com/arinn1204/gomkv/internal/ebml"
+import (
+	"fmt"
+	"io"
+
+	"github.com/arinn1204/gomkv/internal/ebml"
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
+	"github.com/arinn1204/gomkv/internal/utils"
+)
 
 type Mapper[T any] interface {
 	Map(size int64, ebml ebml.Ebml) (*T, error)
@@ -22,4 +29,36 @@ func init() {
 	getSize = func(ebml *ebml.Ebml) (int64, error) {
 		return ebml.GetSize()
 	}
+}
+
+func readUntil(ebml *ebml.Ebml, end int64, process func(id uint32, endPosition int64, element *specification.EbmlData) error) error {
+	var err error
+	for ebml.CurrPos < end {
+		id, idErr := GetID(ebml, 4)
+
+		if idErr == io.EOF {
+			err = utils.ConcatErr(err, idErr)
+			break
+		}
+
+		size, sizeErr := getSize(ebml)
+
+		if sizeErr == io.EOF {
+			err = utils.ConcatErr(err, sizeErr)
+			break
+		}
+		err = utils.ConcatErr(err, utils.ConcatErr(idErr, sizeErr))
+
+		element := ebml.Specification.Data[id]
+
+		if element == nil {
+			err = utils.ConcatErr(err, fmt.Errorf("uknown element of id 0x%X", id))
+			ebml.CurrPos += size
+			continue
+		}
+
+		err = utils.ConcatErr(err, process(id, ebml.CurrPos+size, element))
+	}
+
+	return err
 }

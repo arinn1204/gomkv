@@ -9,7 +9,7 @@ type EbmlDocument struct {
 //Segment contains all the information about the individual EBML segments
 type Segment struct {
 	Points    []Point        `json:",omitempty"`
-	Tracks    []Track        `json:",omitempty"`
+	Tracks    *DisplayTrack  `json:",omitempty"`
 	Tags      []Tag          `json:",omitempty"`
 	files     []AttachedFile `json:",omitempty"`
 	chapters  []Entry        `json:",omitempty"`

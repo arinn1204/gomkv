@@ -2,7 +2,7 @@ package types
 
 //DisplayTrack is a top level element describing many entries
 type DisplayTrack struct {
-	entries []Entry
+	Entries []*Entry
 }
 
 //Entry describes a track with all elements
