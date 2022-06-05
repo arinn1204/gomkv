@@ -208,3 +208,19 @@ func TestWillAddToErrors(t *testing.T) {
 		)
 	}
 }
+func TestWillSkipUndefinedElements(t *testing.T) {
+	elementId := 0x42F7
+
+	GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+		return uint32(elementId), nil
+	}
+
+	getSize = func(ebml *ebml.Ebml) (int64, error) {
+		return 1, nil
+	}
+
+	info, err := info{}.Map(int64(1), *testEbmlObj)
+	assert.Nil(t, err)
+	assert.Equal(t, types.Info{}, *info)
+
+}
