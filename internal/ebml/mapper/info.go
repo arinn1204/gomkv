@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 
 	"github.com/arinn1204/gomkv/internal/ebml"
@@ -18,17 +19,20 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 	var err error
 
 	for ebml.CurrPos < infoEnd {
+		if err == io.EOF {
+			break
+		}
 		id, elemErr := GetID(&ebml, 3)
 
 		if elemErr != nil {
 			err = utils.ConcatErr(err, elemErr)
-			continue
+			break
 		}
 
 		element := ebml.Specification.Data[id]
 		if element == nil {
-			err = utils.ConcatErr(err, fmt.Errorf("unrecognized id of %x", id))
-			continue
+			err = utils.ConcatErr(err, fmt.Errorf("unrecognized id of 0x%X", id))
+			break
 		}
 
 		switch element.Name {
@@ -41,7 +45,12 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 		case "TimestampScale":
 			fallthrough
 		case "DateUTC":
-			process(&info, id, &ebml)
+			if procErr := process(&info, id, &ebml); procErr != nil {
+				err = utils.ConcatErr(err, procErr)
+				if procErr == io.EOF {
+					break
+				}
+			}
 		case "SegmentFamily":
 			fallthrough
 		case "SegmentUID":
@@ -51,6 +60,11 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 		case "PrevUID":
 			elementSize, elemErr := getSize(&ebml)
 			if elemErr != nil {
+				ebml.CurrPos += elementSize
+				if elemErr == io.EOF {
+					err = elemErr
+					break
+				}
 				err = utils.ConcatErr(err, fmt.Errorf("failed to get size of %x", id))
 				continue
 			}
@@ -61,6 +75,7 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 
 			if uuidErr != nil {
 				err = utils.ConcatErr(err, uuidErr)
+				continue
 			}
 
 			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(val))
@@ -68,6 +83,9 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 			elementSize, sizeErr := getSize(&ebml)
 			if sizeErr != nil {
 				err = utils.ConcatErr(err, fmt.Errorf("failed to get size of %x", id))
+				if sizeErr == io.EOF {
+					break
+				}
 				continue
 			}
 

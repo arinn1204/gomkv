@@ -15,6 +15,7 @@ func process[T any](item *T, id uint32, ebml *ebml.Ebml) error {
 	elemSize, err := getSize(ebml)
 
 	if err != nil {
+		ebml.CurrPos += elemSize
 		return err
 	}
 

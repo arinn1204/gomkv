@@ -2,6 +2,9 @@ package mapper
 
 import (
 	"encoding/binary"
+	"errors"
+	"fmt"
+	"io"
 	"math"
 	"testing"
 
@@ -130,6 +133,77 @@ func TestCanProperlyParseData(t *testing.T) {
 				assert.Nil(t, err)
 				result := getExpectedInfoValue(info, i)
 				assert.Equal(t, expected, result)
+			},
+		)
+	}
+}
+
+func TestWillAddToErrors(t *testing.T) {
+	elementId := 0x4D80
+	expected := "Muxing App"
+	testData := []byte(expected)
+	elementSize := len(testData)
+
+	for i := 0; i < 5; i++ {
+		GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+			return uint32(elementId), nil
+		}
+
+		read = func(ebml *ebml.Ebml, data []byte) (int, error) {
+			testData := getTestData()
+			if len(data) > len(testData) {
+				copy(data, testData)
+			} else {
+				copy(data, testData[:len(data)])
+			}
+			return len(data), nil
+		}
+
+		getSize = func(ebml *ebml.Ebml) (int64, error) {
+			return int64(elementSize), nil
+		}
+
+		getTestData = func() []byte {
+			return testData
+		}
+
+		var expected error
+		switch i {
+		case 0:
+			expected = errors.New("foobar")
+			GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+				return 0, errors.New("foobar")
+			}
+		case 1:
+			expected = errors.New("unrecognized id of 0xFFFFF")
+			GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+				return 0xFFFFF, nil
+			}
+		case 2:
+			expected = io.EOF
+			getSize = func(ebml *ebml.Ebml) (int64, error) {
+				return 1, io.EOF
+			}
+		case 3:
+			elementId = 0x4444
+			getSize = func(ebml *ebml.Ebml) (int64, error) {
+				return 1, io.EOF
+			}
+			testData = []byte{238, 6, 5, 118, 217, 31, 105, 95, 33, 117, 255, 128, 185, 32, 38, 185}
+			expected = io.EOF
+		case 4:
+			elementId = 0x4444
+			testData = []byte{238, 7, 6, 5, 118, 217, 31, 105, 95, 33, 117, 255, 128, 185, 32, 38, 185}
+			expected = errors.New("invalid UUID (got 17 bytes)")
+		}
+
+		t.Run(
+			fmt.Sprintf("TestWillAddToErrors %v", i),
+			func(t *testing.T) {
+				elementSize = len(getTestData())
+				_, err := info{}.Map(int64(elementSize), *testEbmlObj)
+				assert.NotNil(t, err)
+				assert.Equal(t, expected, err)
 			},
 		)
 	}
