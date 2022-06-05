@@ -78,7 +78,7 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 				continue
 			}
 
-			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(val))
+			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(&val))
 		default:
 			elementSize, sizeErr := getSize(&ebml)
 			if sizeErr != nil {

@@ -47,13 +47,13 @@ func TestCanProperlyParseData(t *testing.T) {
 	getExpectedInfoValue := func(info *types.Info, index int) interface{} {
 		switch index {
 		case 0:
-			return info.SegmentUID
+			return *info.SegmentUID
 		case 1:
-			return info.PrevUID
+			return *info.PrevUID
 		case 2:
-			return info.NextUID
+			return *info.NextUID
 		case 3:
-			return info.SegmentFamily
+			return *info.SegmentFamily
 		case 4:
 			return info.DateUTC
 		case 5:

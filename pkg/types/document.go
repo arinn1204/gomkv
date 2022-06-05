@@ -8,14 +8,14 @@ type EbmlDocument struct {
 
 //Segment contains all the information about the individual EBML segments
 type Segment struct {
-	Points    []Point
-	Tracks    []Track
-	Tags      []Tag
-	files     []AttachedFile
-	chapters  []Entry
-	SeekHeads []SeekHead
-	Info      *Info
-	clusters  []Cluster
+	Points    []Point        `json:",omitempty"`
+	Tracks    []Track        `json:",omitempty"`
+	Tags      []Tag          `json:",omitempty"`
+	files     []AttachedFile `json:",omitempty"`
+	chapters  []Entry        `json:",omitempty"`
+	SeekHeads []SeekHead     `json:",omitempty"`
+	Info      *Info          `json:",omitempty"`
+	clusters  []Cluster      `json:",omitempty"`
 }
 
 //Header contains metadata about the document
