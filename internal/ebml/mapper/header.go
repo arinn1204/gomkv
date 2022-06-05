@@ -7,29 +7,24 @@ import (
 
 	"github.com/arinn1204/gomkv/internal/array"
 	"github.com/arinn1204/gomkv/internal/ebml"
+	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
 type Header struct{}
 
 func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
-	startPos := ebml.CurrPos
+	header := new(types.Header)
 
-	header := types.Header{}
+	err := readUntil(
+		&ebml,
+		ebml.CurrPos+size,
+		func(id uint32, endPos int64, element *specification.EbmlData) error {
+			return process(header, id, endPos-ebml.CurrPos, &ebml)
+		},
+	)
 
-	for ebml.CurrPos < startPos+size {
-		id, err := GetID(&ebml, 2)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if err = process(&header, id, &ebml); err != nil {
-			return nil, err
-		}
-	}
-
-	return &header, nil
+	return header, err
 }
 
 //GetID is a function that will return the ID of the following EBML element

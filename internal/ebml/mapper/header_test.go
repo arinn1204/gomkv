@@ -1,15 +1,10 @@
 package mapper
 
 import (
-	"io"
 	"testing"
 
-	"github.com/arinn1204/gomkv/internal/ebml"
-	"github.com/arinn1204/gomkv/internal/ebml/specification"
-	"github.com/arinn1204/gomkv/internal/filesystem/mocks"
 	"github.com/arinn1204/gomkv/pkg/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func getHeaderTestData() []byte {
@@ -70,39 +65,4 @@ func TestCanProperlySerializeHeader(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedHeader, *doc)
-}
-
-func TestReturnsOutWhenEndOfFile(t *testing.T) {
-	alreadyRead := 0
-	mockReader := &mocks.Reader{}
-
-	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)
-
-	testData := getHeaderTestData()[:4]
-	call.Run(func(args mock.Arguments) {
-		retArr := args.Get(1).([]byte)
-
-		copy(retArr, testData)
-		if alreadyRead > 0 {
-			call.Return(
-				0,
-				io.EOF,
-			)
-		} else {
-			call.Return(alreadyRead, nil)
-		}
-		alreadyRead++
-	})
-
-	spec, _ := specification.GetSpecification("../testdata/header_ebml.xml")
-	reader := ebml.Ebml{
-		File:          mockReader,
-		CurrPos:       0,
-		Specification: spec,
-	}
-
-	doc, err := Header{}.Map(int64(len(getHeaderTestData())), reader)
-
-	assert.Nil(t, doc)
-	assert.Equal(t, io.EOF, err)
 }
