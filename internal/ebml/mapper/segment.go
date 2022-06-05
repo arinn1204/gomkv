@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/arinn1204/gomkv/internal/ebml"
@@ -46,12 +47,12 @@ func crawl(ebml *ebml.Ebml, segmentSize int64, segment *types.Segment, initialEl
 	elementSize := initialElementSize
 	element := ebml.Specification.Data[initialElementId]
 	for ebml.CurrPos < endPos {
-		getSubElement(ebml, elementSize, element, segment)
+		seErr := getSubElement(ebml, elementSize, element, segment)
 		ebml.CurrPos += elementSize
 
 		id, _ = GetID(ebml, 4)
 		elementSize, err = ebml.GetSize()
-		if err != nil {
+		if err != nil || seErr != nil {
 			break
 		}
 
@@ -60,16 +61,34 @@ func crawl(ebml *ebml.Ebml, segmentSize int64, segment *types.Segment, initialEl
 }
 
 func seekElements(ebml *ebml.Ebml, segmentStart int64, segmentSize int64, segment *types.Segment, seekHeadId uint32, seekHeadSize int64) error {
-	getSubElement(ebml, seekHeadSize, ebml.Specification.Data[seekHeadId], segment)
-	errors := make(chan error)
+	err := getSubElement(ebml, seekHeadSize, ebml.Specification.Data[seekHeadId], segment)
 
-	for _, seekHead := range segment.SeekHeads {
-		for _, seek := range seekHead.Seeks {
-			seekElement(*ebml, int64(seek.SeekPosition)+segmentStart, segment, errors)
-		}
+	if err != nil {
+		return err
 	}
 
-	return nil
+	for _, seekHead := range segment.SeekHeads {
+		errorChan := make(chan error, len(seekHead.Seeks))
+		for _, seek := range seekHead.Seeks {
+			go seekElement(*ebml, int64(seek.SeekPosition)+segmentStart, segment, errorChan)
+		}
+
+		for i := 0; i < len(seekHead.Seeks); i++ {
+			c := <-errorChan
+			if c == nil {
+				continue
+			}
+			if err == nil {
+				err = c
+			} else {
+				err = errors.New(err.Error() + c.Error())
+			}
+		}
+
+		close(errorChan)
+	}
+
+	return err
 }
 
 func seekElement(ebml ebml.Ebml, elementPosition int64, segment *types.Segment, errors chan<- error) {
@@ -82,23 +101,29 @@ func seekElement(ebml ebml.Ebml, elementPosition int64, segment *types.Segment, 
 		return
 	}
 
-	getSubElement(&ebml, size, ebml.Specification.Data[id], segment)
+	errors <- getSubElement(&ebml, size, ebml.Specification.Data[id], segment)
 }
 
-func getSubElement(ebml *ebml.Ebml, size int64, element *specification.EbmlData, segment *types.Segment) chan<- error {
-	errorChan := make(chan error)
+func getSubElement(ebml *ebml.Ebml, size int64, element *specification.EbmlData, segment *types.Segment) error {
+	var err error
 	switch element.Name {
+	case "Info":
+		segment.Infos = make([]types.Info, 1)
+	case "Tracks":
+		segment.Tracks = make([]types.Track, 1)
+	case "Tags":
+		segment.Tags = make([]types.Tag, 1)
+	case "Cues":
+		segment.Points = make([]types.Point, 1)
 	case "SeekHead":
-		func() {
-			seekHead, err := SeekHead{}.Map(size, *ebml)
-			segment.SeekHeads = append(segment.SeekHeads, *seekHead)
-			if err != nil {
-				errorChan <- err
-			}
-		}()
+		seekHead, seekHeadErr := SeekHead{}.Map(size, *ebml)
+		segment.SeekHeads = append(segment.SeekHeads, *seekHead)
+		if seekHeadErr != nil {
+			err = errors.New("seekHead creation failed - " + seekHeadErr.Error())
+		}
 	case "Void":
 		break
 	}
 
-	return errorChan
+	return err
 }

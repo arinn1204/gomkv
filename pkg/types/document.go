@@ -8,13 +8,13 @@ type EbmlDocument struct {
 
 //Segment contains all the information about the individual EBML segments
 type Segment struct {
-	points    []Point
-	tracks    []Track
-	tags      []Tag
+	Points    []Point
+	Tracks    []Track
+	Tags      []Tag
 	files     []AttachedFile
 	chapters  []Entry
 	SeekHeads []SeekHead
-	infos     []Info
+	Infos     []Info
 	clusters  []Cluster
 }
 
