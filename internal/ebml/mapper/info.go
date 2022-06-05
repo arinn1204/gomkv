@@ -56,10 +56,6 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 			reflect.ValueOf(&info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(val))
 		case "Translations":
 			//todo fill me out
-		case "DateUTC":
-			//todo fill me out
-			elementSize, _ := getSize(&ebml)
-			ebml.CurrPos += elementSize
 		default:
 			process(&info, id, &ebml)
 		}

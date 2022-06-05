@@ -36,6 +36,8 @@ func process[T any](item *T, id uint32, ebml *ebml.Ebml) error {
 func setElementData(buf []byte, element *specification.EbmlData, field *reflect.Value) error {
 	var err error
 	switch element.Type {
+	case "date":
+		fallthrough
 	case "binary":
 		data := getData(buf)
 		field.Set(reflect.ValueOf(data))
@@ -50,9 +52,6 @@ func setElementData(buf []byte, element *specification.EbmlData, field *reflect.
 		fallthrough
 	case "string":
 		field.Set(reflect.ValueOf(string(buf)))
-	case "date":
-		data := getData(buf)
-		field.Set(reflect.ValueOf(data))
 	default:
 		err = fmt.Errorf("failed to get data for %v", element.Type)
 	}
