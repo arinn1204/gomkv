@@ -7,9 +7,9 @@ import (
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
-type SeekHead struct{}
+type seekHead struct{}
 
-func (SeekHead) Map(size int64, ebml ebml.Ebml) (*types.SeekHead, error) {
+func (seekHead) Map(size int64, ebml ebml.Ebml) (*types.SeekHead, error) {
 	var err error
 	id, err := GetID(&ebml, 2)
 

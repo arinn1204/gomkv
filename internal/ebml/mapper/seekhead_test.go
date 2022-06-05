@@ -12,7 +12,7 @@ func TestWillProperlySerializeASeekHead(t *testing.T) {
 
 	reader := getMockData(seekHeadData)
 
-	seekHeadRes, err := SeekHead{}.Map(int64(len(seekHeadData)), *reader)
+	seekHeadRes, err := seekHead{}.Map(int64(len(seekHeadData)), *reader)
 
 	assert.Nil(t, err)
 

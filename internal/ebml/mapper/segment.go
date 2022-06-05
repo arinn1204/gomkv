@@ -106,17 +106,34 @@ func seekElement(ebml ebml.Ebml, elementPosition int64, segment *types.Segment, 
 
 func getSubElement(ebml *ebml.Ebml, size int64, element *specification.EbmlData, segment *types.Segment) error {
 	var err error
+
 	switch element.Name {
 	case "Info":
-		segment.Infos = make([]types.Info, 1)
+		infos, infoErr := info{}.Map(size, *ebml)
+		segment.Infos = infos
+		if infoErr != nil {
+			err = errors.New("info creation failed - " + infoErr.Error())
+		}
 	case "Tracks":
-		segment.Tracks = make([]types.Track, 1)
+		tracks, trackErr := tracks{}.Map(size, *ebml)
+		segment.Tracks = tracks
+		if trackErr != nil {
+			err = errors.New("tracks creation failed - " + trackErr.Error())
+		}
 	case "Tags":
-		segment.Tags = make([]types.Tag, 1)
+		tags, tagErr := tags{}.Map(size, *ebml)
+		segment.Tags = tags
+		if tagErr != nil {
+			err = errors.New("tags creation failed - " + tagErr.Error())
+		}
 	case "Cues":
-		segment.Points = make([]types.Point, 1)
+		cues, cueErr := cues{}.Map(size, *ebml)
+		segment.Points = cues
+		if cueErr != nil {
+			err = errors.New("cues creation failed - " + cueErr.Error())
+		}
 	case "SeekHead":
-		seekHead, seekHeadErr := SeekHead{}.Map(size, *ebml)
+		seekHead, seekHeadErr := seekHead{}.Map(size, *ebml)
 		segment.SeekHeads = append(segment.SeekHeads, *seekHead)
 		if seekHeadErr != nil {
 			err = errors.New("seekHead creation failed - " + seekHeadErr.Error())
