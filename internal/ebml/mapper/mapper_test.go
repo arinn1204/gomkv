@@ -7,6 +7,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var getTestData func() []byte
+var testEbmlObj *ebml.Ebml
+
+func init() {
+	spec, _ := specification.GetSpecification("testdata/matroska_ebml.xml")
+	testEbmlObj = &ebml.Ebml{Specification: spec}
+}
+
 func getMockData(data []byte) *ebml.Ebml {
 	mockReader := &mocks.Reader{}
 	call := mockReader.On("Read", mock.AnythingOfType("int64"), mock.Anything)

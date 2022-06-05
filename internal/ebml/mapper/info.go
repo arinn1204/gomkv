@@ -32,11 +32,13 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 		}
 
 		switch element.Name {
+		case "SegmentFamily":
+			fallthrough
 		case "SegmentUID":
 			fallthrough
 		case "NextUID":
 			fallthrough
-		case "PreviousUID":
+		case "PrevUID":
 			elementSize, elemErr := getSize(&ebml)
 			if elemErr != nil {
 				err = utils.ConcatErr(err, fmt.Errorf("failed to get size of %x", id))
