@@ -38,7 +38,7 @@ func createSeeks(ebml ebml.Ebml, size int64) ([]types.Seek, error) {
 	endPos := ebml.CurrPos + size
 
 	for ebml.CurrPos < endPos && err == nil && id == 0x4DBB {
-		seekSize, seekErr := ebml.GetSize()
+		seekSize, seekErr := getSize(&ebml)
 
 		if seekErr != nil {
 			err = fmt.Errorf("SeekHead error - %v", seekErr.Error())

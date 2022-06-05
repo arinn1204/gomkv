@@ -18,7 +18,7 @@ func (Segment) Map(size int64, ebml ebml.Ebml) (*types.Segment, error) {
 	var segment types.Segment
 	id, _ = GetID(&ebml, 4)
 
-	elementSize, err := ebml.GetSize()
+	elementSize, err := getSize(&ebml)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func crawl(ebml *ebml.Ebml, segmentSize int64, segment *types.Segment, initialEl
 		ebml.CurrPos += elementSize
 
 		id, _ = GetID(ebml, 4)
-		elementSize, err = ebml.GetSize()
+		elementSize, err = getSize(ebml)
 		if err != nil || seErr != nil {
 			break
 		}
@@ -94,7 +94,7 @@ func seekElements(ebml *ebml.Ebml, segmentStart int64, segmentSize int64, segmen
 func seekElement(ebml ebml.Ebml, elementPosition int64, segment *types.Segment, errors chan<- error) {
 	ebml.CurrPos = int64(elementPosition)
 	id, _ := GetID(&ebml, 4)
-	size, err := ebml.GetSize()
+	size, err := getSize(&ebml)
 
 	if err != nil {
 		errors <- err

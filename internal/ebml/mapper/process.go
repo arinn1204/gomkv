@@ -12,14 +12,14 @@ import (
 )
 
 func process[T any](item *T, id uint32, ebml *ebml.Ebml) error {
-	elemSize, err := ebml.GetSize()
+	elemSize, err := getSize(ebml)
 
 	if err != nil {
 		return err
 	}
 
 	buf := make([]byte, elemSize)
-	n, err := ebml.File.Read(ebml.CurrPos, buf)
+	n, err := read(ebml, buf)
 
 	if err != nil {
 		return err

@@ -10,10 +10,6 @@ import (
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
-type Mapper[T any] interface {
-	Map(size int64, ebml ebml.Ebml) (*T, error)
-}
-
 type Header struct{}
 
 func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
@@ -37,14 +33,14 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 }
 
 //GetID is a function that will return the ID of the following EBML element
-func GetID(ebml *ebml.Ebml, maxCount int) (uint32, error) {
+func getID(ebml *ebml.Ebml, maxCount int) (uint32, error) {
 	buf := make([]byte, maxCount)
 	byteToRead := 1
 
 	var id uint32
 
 	for byteToRead <= maxCount {
-		_, err := ebml.File.Read(ebml.CurrPos, buf[maxCount-byteToRead:maxCount])
+		_, err := read(ebml, buf[maxCount-byteToRead:maxCount])
 		if err != nil {
 			if err == io.EOF {
 				return 0, err

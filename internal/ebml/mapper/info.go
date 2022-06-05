@@ -37,13 +37,13 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 		case "NextUID":
 			fallthrough
 		case "PreviousUID":
-			elementSize, elemErr := ebml.GetSize()
+			elementSize, elemErr := getSize(&ebml)
 			if elemErr != nil {
 				err = utils.ConcatErr(err, fmt.Errorf("failed to get size of %x", id))
 				continue
 			}
 			buf := make([]byte, elementSize)
-			n, _ := ebml.File.Read(ebml.CurrPos, buf)
+			n, _ := read(&ebml, buf)
 			ebml.CurrPos += int64(n)
 			val, uuidErr := uuid.FromBytes(buf)
 
@@ -56,7 +56,7 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 			//todo fill me out
 		case "DateUTC":
 			//todo fill me out
-			elementSize, _ := ebml.GetSize()
+			elementSize, _ := getSize(&ebml)
 			ebml.CurrPos += elementSize
 		default:
 			process(&info, id, &ebml)
