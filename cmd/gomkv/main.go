@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 
@@ -11,6 +12,8 @@ import (
 
 func main() {
 	var filePath string
+	flag.StringVar(&filePath, "path", "", "the path of the matroska file to parse")
+	flag.Parse()
 	file, err := os.Open(filePath)
 
 	if err != nil {
