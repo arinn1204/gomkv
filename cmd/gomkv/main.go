@@ -25,7 +25,9 @@ func main() {
 		File: file,
 	}
 
-	doc, _ := ebml.Read(&wrapper, "../../data/matroska_ebml.xml")
+	doc, err := ebml.Read(&wrapper, "../../data/matroska_ebml.xml")
 	jsonDoc, _ := json.MarshalIndent(doc, "", "  ")
 	fmt.Println(string(jsonDoc))
+
+	fmt.Println(err)
 }
