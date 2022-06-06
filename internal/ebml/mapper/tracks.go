@@ -40,7 +40,7 @@ func mapTracks(ebmlContainer *ebml.Ebml, endPosition int64) ([]*types.Entry, err
 			go func(endPos int64, ebml ebml.Ebml) {
 				defer wg.Done()
 
-				entry, err := makeTrackEntry(ebml, endPos)
+				entry, err := makeTrackEntry(&ebml, endPos)
 				entryChan <- &entryContainer{
 					entry: entry,
 					err:   err,
@@ -61,11 +61,11 @@ func mapTracks(ebmlContainer *ebml.Ebml, endPosition int64) ([]*types.Entry, err
 	return entries, err
 }
 
-func makeTrackEntry(ebml ebml.Ebml, endPosition int64) (*types.Entry, error) {
+func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
 	entry := new(types.Entry)
 
 	err := readUntil(
-		&ebml,
+		ebml,
 		endPosition,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
 			var err error
@@ -79,14 +79,14 @@ func makeTrackEntry(ebml ebml.Ebml, endPosition int64) (*types.Entry, error) {
 			case "CodecID":
 				fallthrough
 			case "CodecName":
-				err = process(entry, id, endPos-ebml.CurrPos, &ebml)
+				err = process(entry, id, endPos-ebml.CurrPos, ebml)
 			case "Video":
 				var video *types.Video
-				video, err = makeVideoEntry(&ebml, endPos)
+				video, err = makeVideoEntry(ebml, endPos)
 				entry.Video = video
 			case "Audio":
 				var audio *types.Audio
-				audio, err = makeAudioEntry(&ebml, endPos)
+				audio, err = makeAudioEntry(ebml, endPos)
 				entry.Audio = audio
 			default:
 				ebml.CurrPos = endPos
