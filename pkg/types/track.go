@@ -10,7 +10,7 @@ type Entry struct {
 	Name         string `json:",omitempty"`
 	Language     string `json:",omitempty"`
 	LanguageIETF string `json:",omitempty"`
-	CodecID      uint   `json:",omitempty"`
+	CodecID      string `json:",omitempty"`
 	CodecName    string `json:",omitempty"`
 	Video        *Video `json:",omitempty"`
 	Audio        *Audio `json:",omitempty"`

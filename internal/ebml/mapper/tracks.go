@@ -3,6 +3,7 @@ package mapper
 import (
 	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
+	"github.com/arinn1204/gomkv/internal/utils"
 	"github.com/arinn1204/gomkv/pkg/types"
 )
 
@@ -33,13 +34,13 @@ func mapTracks(ebml *ebml.Ebml, endPosition int64) ([]*types.Entry, error) {
 }
 
 func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
+	errChan := make(chan error, 7)
 	entry := new(types.Entry)
-
-	err := readUntil(
+	entries := 0
+	readUntil(
 		ebml,
 		endPosition,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
-			var err error
 			switch element.Name {
 			case "Name":
 				fallthrough
@@ -50,28 +51,39 @@ func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
 			case "CodecID":
 				fallthrough
 			case "CodecName":
-				func() {
-					err = process(entry, id, endPos-ebml.CurrPos, ebml)
+				go func() {
+					entries++
+					errChan <- process(entry, id, endPos-ebml.CurrPos, ebml)
 				}()
 			case "Video":
-				func() {
-					var video *types.Video
-					video, err = makeVideoEntry(*ebml, endPos)
+				go func() {
+					entries++
+					video, err := makeVideoEntry(*ebml, endPos)
 					entry.Video = video
+
+					errChan <- err
 				}()
 			case "Audio":
-				func() {
-					var audio *types.Audio
-					audio, err = makeAudioEntry(*ebml, endPos)
+				go func() {
+					entries++
+					audio, err := makeAudioEntry(*ebml, endPos)
 					entry.Audio = audio
+
+					errChan <- err
 				}()
 			default:
 				ebml.CurrPos = endPos
 			}
-			return err
+			return nil
 		},
 	)
 
+	var err error
+	for i := 0; i < entries; i++ {
+		err = utils.ConcatErr(err, <-errChan)
+	}
+
+	close(errChan)
 	return entry, err
 }
 
