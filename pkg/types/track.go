@@ -21,8 +21,8 @@ type Video struct {
 	PixelWidth      uint `json:",omitempty"`
 	PixelHeight     uint `json:",omitempty"`
 	DisplayWidth    uint `json:",omitempty"`
-	DisplaylHeight  uint `json:",omitempty"`
-	DisplaylUnit    uint `json:",omitempty"`
+	DisplayHeight   uint `json:",omitempty"`
+	DisplayUnit     uint `json:",omitempty"`
 	AspectRatioType uint `json:",omitempty"`
 }
 
