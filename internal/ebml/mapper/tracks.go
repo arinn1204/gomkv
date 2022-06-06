@@ -39,10 +39,46 @@ func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
 		ebml,
 		endPosition,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
-			ebml.CurrPos = endPos
-			return nil
+			var err error
+			switch element.Name {
+			case "Name":
+				fallthrough
+			case "Language":
+				fallthrough
+			case "LanguageIETF":
+				fallthrough
+			case "CodecID":
+				fallthrough
+			case "CodecName":
+				func() {
+					err = process(entry, id, endPos-ebml.CurrPos, ebml)
+				}()
+			case "Video":
+				func() {
+					var video *types.Video
+					video, err = makeVideoEntry(*ebml, endPos)
+					entry.Video = video
+				}()
+			case "Audio":
+				func() {
+					var audio *types.Audio
+					audio, err = makeAudioEntry(*ebml, endPos)
+					entry.Audio = audio
+				}()
+			default:
+				ebml.CurrPos = endPos
+			}
+			return err
 		},
 	)
 
 	return entry, err
+}
+
+func makeVideoEntry(ebml ebml.Ebml, endPosition int64) (*types.Video, error) {
+	return nil, nil
+}
+
+func makeAudioEntry(ebml ebml.Ebml, endPosition int64) (*types.Audio, error) {
+	return nil, nil
 }
