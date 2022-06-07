@@ -14,6 +14,14 @@ type Ebml struct {
 	Specification *specification.Ebml
 }
 
+func (ebml *Ebml) Copy() *Ebml {
+	return &Ebml{
+		File:          ebml.File,
+		CurrPos:       ebml.CurrPos,
+		Specification: ebml.Specification,
+	}
+}
+
 //GetSize will return the size of the proceeding EBML element
 func (ebml *Ebml) GetSize() (int64, error) {
 	buf := make([]byte, 1)

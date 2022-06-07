@@ -2,28 +2,27 @@ package types
 
 //Tag is a metadata descriptor
 type Tag struct {
-	target Target
-	tags   []SimpleTag
+	Targets *Target      `json:",omitempty"`
+	Tags    []*SimpleTag `json:",omitempty"`
 }
 
 //Target describes what element the tag is describing
 //If target is empty then it applies to the whole segment
 type Target struct {
-	logicalLevelValue uint
-	logicalLevel      uint
-	trackUids         []uint
-	editionUids       []uint
-	chapterUids       []uint
-	attachementUids   []uint
+	TargetTypeValue  uint   `json:",omitempty"`
+	TargetType       string `json:",omitempty"`
+	TagTrackUID      uint   `json:",omitempty"`
+	TagEditionUID    uint   `json:",omitempty"`
+	TagAttachmentUID uint   `json:",omitempty"`
 }
 
 //SimpleTag contains general information about the target
 type SimpleTag struct {
-	child          *SimpleTag
-	name           string
-	language       string
-	languageIETF   string
-	defaultLaunage uint
-	tagString      string
-	binary         []byte
+	Child           *SimpleTag `json:",omitempty"`
+	TagName         string     `json:",omitempty"`
+	TagLanguage     string     `json:",omitempty"`
+	TagLanguageIETF string     `json:",omitempty"`
+	TagDefault      uint       `json:",omitempty"`
+	TagDefaultBogus string     `json:",omitempty"`
+	TagString       string     `json:",omitempty"`
 }

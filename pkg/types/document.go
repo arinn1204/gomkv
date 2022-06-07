@@ -10,7 +10,7 @@ type EbmlDocument struct {
 type Segment struct {
 	Points    []Point        `json:",omitempty"`
 	Tracks    *DisplayTrack  `json:",omitempty"`
-	Tags      []Tag          `json:",omitempty"`
+	Tags      []*Tag         `json:",omitempty"`
 	files     []AttachedFile `json:",omitempty"`
 	chapters  []Entry        `json:",omitempty"`
 	SeekHeads []SeekHead     `json:",omitempty"`
