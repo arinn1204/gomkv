@@ -72,6 +72,8 @@ func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
 			switch element.Name {
 			case "Name":
 				fallthrough
+			case "TrackUID":
+				fallthrough
 			case "Language":
 				fallthrough
 			case "LanguageIETF":

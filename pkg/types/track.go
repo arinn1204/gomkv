@@ -7,6 +7,7 @@ type DisplayTrack struct {
 
 //Entry describes a track with all elements
 type Entry struct {
+	TrackUID     uint   `json:",omitempty"`
 	Name         string `json:",omitempty"`
 	Language     string `json:",omitempty"`
 	LanguageIETF string `json:",omitempty"`
