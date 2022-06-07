@@ -29,7 +29,7 @@ func (tags) Map(size int64, ebmlContainer ebml.Ebml) ([]*types.Tag, error) {
 			switch element.Name {
 			case "Tag":
 				wg.Add(1)
-				func(e ebml.Ebml) {
+				go func(e ebml.Ebml) {
 					defer wg.Done()
 					tag, err := processTag(&e, endPosition)
 
