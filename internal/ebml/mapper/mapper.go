@@ -16,6 +16,7 @@ type Mapper[T any] interface {
 var GetID func(ebml *ebml.Ebml, maxCount int) (uint32, error)
 var read func(ebml *ebml.Ebml, data []byte) (int, error)
 var getSize func(ebml *ebml.Ebml) (int64, error)
+var readUntil func(ebml *ebml.Ebml, end int64, process func(id uint32, endPosition int64, element *specification.EbmlData) error) error
 
 func init() {
 	GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
@@ -29,9 +30,14 @@ func init() {
 	getSize = func(ebml *ebml.Ebml) (int64, error) {
 		return ebml.GetSize()
 	}
+
+	readUntil = readUntilElementFound
 }
 
-func readUntil(ebml *ebml.Ebml, end int64, process func(id uint32, endPosition int64, element *specification.EbmlData) error) error {
+func readUntilElementFound(
+	ebml *ebml.Ebml,
+	end int64,
+	process func(id uint32, endPosition int64, element *specification.EbmlData) error) error {
 	var err error
 	for ebml.CurrPos < end {
 		id, idErr := GetID(ebml, 4)
