@@ -2,7 +2,6 @@ package mapper
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
@@ -42,14 +41,14 @@ func readUntilElementFound(
 	for ebml.CurrPos < end {
 		id, idErr := GetID(ebml, 4)
 
-		if idErr == io.EOF {
+		if idErr != nil {
 			err = utils.ConcatErr(err, idErr)
 			break
 		}
 
 		size, sizeErr := getSize(ebml)
 
-		if sizeErr == io.EOF {
+		if sizeErr != nil {
 			err = utils.ConcatErr(err, sizeErr)
 			break
 		}
