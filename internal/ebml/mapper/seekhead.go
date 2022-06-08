@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/arinn1204/gomkv/internal/ebml"
@@ -35,7 +36,28 @@ func createSeek(ebml *ebml.Ebml, endPosition int64) (*types.Seek, error) {
 		ebml,
 		endPosition,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
-			return ebmlProcessor.processField(seek, id, endPos-ebml.CurrPos, ebml)
+			var set func(*types.Seek, any)
+			var err error
+			switch element.Name {
+			case "SeekID":
+				set = func(v *types.Seek, a any) {
+					val := binary.BigEndian.Uint32(a.([]byte))
+					seek.SeekID = uint64(val)
+				}
+			case "SeekPosition":
+				set = func(v *types.Seek, a any) {
+					v.SeekPosition = a.(uint)
+				}
+			default:
+				ebml.CurrPos = endPos
+			}
+
+			if set != nil {
+				var data any
+				data, err = getFieldData(id, endPos-ebml.CurrPos, ebml)
+				set(seek, data)
+			}
+			return err
 		},
 	)
 	return seek, err

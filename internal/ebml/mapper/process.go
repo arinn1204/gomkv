@@ -29,12 +29,12 @@ func getElementData(buf []byte, element *specification.EbmlData) (any, error) {
 	var err error
 	var data any
 	switch element.Type {
-	case "date":
-		fallthrough
 	case "binary":
+		data = buf
+	case "date":
 		data = getData(buf)
 	case "uinteger":
-		data = getData(buf)
+		data = uint(getData(buf))
 	case "float":
 		val := getData(buf)
 		data = math.Float32frombits(uint32(val))
@@ -50,7 +50,6 @@ func getElementData(buf []byte, element *specification.EbmlData) (any, error) {
 }
 
 func getData(buf []byte) uint64 {
-
 	paddedBuf := make([]byte, 8)
 	array.Pad(buf, paddedBuf)
 	data := binary.BigEndian.Uint64(paddedBuf)

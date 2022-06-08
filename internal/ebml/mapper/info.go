@@ -1,8 +1,6 @@
 package mapper
 
 import (
-	"reflect"
-
 	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/internal/utils"
@@ -29,45 +27,62 @@ func (info) Map(size int64, ebml ebml.Ebml) (*types.Info, error) {
 
 func processInfo(id uint32, size int64, ebml *ebml.Ebml, element *specification.EbmlData, info *types.Info) error {
 	var err error
+	var set func(*types.Info, any)
 	switch element.Name {
 	case "Duration":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			v.Duration = a.(float32)
+		}
 	case "MuxingApp":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			v.MuxingApp = a.(string)
+		}
 	case "WritingApp":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			v.WritingApp = a.(string)
+		}
 	case "TimestampScale":
-		fallthrough
-	case "DateUTC":
-		if procErr := ebmlProcessor.processField(info, id, size, ebml); procErr != nil {
-			err = utils.ConcatErr(err, procErr)
+		set = func(v *types.Info, a any) {
+			v.TimestampScale = a.(uint)
 		}
 	case "SegmentFamily":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			var val uuid.UUID
+			val, err = uuid.FromBytes(a.([]byte))
+			v.SegmentFamily = &val
+		}
 	case "SegmentUID":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			var val uuid.UUID
+			val, err = uuid.FromBytes(a.([]byte))
+			v.SegmentUID = &val
+		}
 	case "NextUID":
-		fallthrough
+		set = func(v *types.Info, a any) {
+			var val uuid.UUID
+			val, err = uuid.FromBytes(a.([]byte))
+			v.NextUID = &val
+		}
 	case "PrevUID":
-		err = utils.ConcatErr(err, processUUID(ebml, id, size, info, element))
+		set = func(v *types.Info, a any) {
+			var val uuid.UUID
+			val, err = uuid.FromBytes(a.([]byte))
+			v.PrevUID = &val
+		}
+	case "DateUTC":
+		set = func(v *types.Info, a any) {
+			v.DateUTC = a.(uint64)
+		}
+
 	default:
 		ebml.CurrPos += size
 	}
 
-	return err
-}
-
-func processUUID(ebml *ebml.Ebml, id uint32, elementSize int64, info *types.Info, element *specification.EbmlData) error {
-	var err error
-	buf := make([]byte, elementSize)
-	n, _ := read(ebml, buf)
-	ebml.CurrPos += int64(n)
-	val, uuidErr := uuid.FromBytes(buf)
-
-	if uuidErr != nil {
-		return utils.ConcatErr(err, uuidErr)
+	if set != nil {
+		data, fieldErr := getFieldData(id, size, ebml)
+		err = utils.ConcatErr(err, fieldErr)
+		set(info, data)
 	}
 
-	reflect.ValueOf(info).Elem().FieldByName(element.Name).Set(reflect.ValueOf(&val))
 	return err
 }

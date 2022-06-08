@@ -91,20 +91,36 @@ func processTargets(ebml *ebml.Ebml, endPosition int64) (*types.Target, error) {
 		ebml,
 		endPosition,
 		func(id uint32, endPosition int64, element *specification.EbmlData) error {
+			var set func(*types.Target, any)
 			var err error
 			switch element.Name {
 			case "TargetTypeValue":
-				fallthrough
+				set = func(v *types.Target, a any) {
+					v.TargetTypeValue = a.(uint)
+				}
 			case "TargetType":
-				fallthrough
+				set = func(v *types.Target, a any) {
+					v.TargetType = a.(string)
+				}
 			case "TagTrackUID":
-				fallthrough
+				set = func(v *types.Target, a any) {
+					v.TagTrackUID = a.(uint)
+				}
 			case "TagEditionUID":
-				fallthrough
+				set = func(v *types.Target, a any) {
+					v.TagEditionUID = a.(uint)
+				}
 			case "TagAttachmentUID":
-				err = ebmlProcessor.processField(target, id, endPosition-ebml.CurrPos, ebml)
+				set = func(v *types.Target, a any) {
+					v.TagAttachmentUID = a.(uint)
+				}
 			default:
 				ebml.CurrPos = endPosition
+			}
+			if set != nil {
+				var data any
+				data, err = getFieldData(id, endPosition-ebml.CurrPos, ebml)
+				set(target, data)
 			}
 			return err
 		})
@@ -122,19 +138,33 @@ func processSimpleTag(ebml *ebml.Ebml, endPosition int64) (*types.SimpleTag, err
 		ebml,
 		endPosition,
 		func(id uint32, endPosition int64, element *specification.EbmlData) error {
+			var set func(*types.SimpleTag, any)
+			var err error
 			switch element.Name {
 			case "TagName":
-				fallthrough
+				set = func(v *types.SimpleTag, a any) {
+					v.TagName = a.(string)
+				}
 			case "TagLanguage":
-				fallthrough
+				set = func(v *types.SimpleTag, a any) {
+					v.TagLanguage = a.(string)
+				}
 			case "TagLanguageIETF":
-				fallthrough
+				set = func(v *types.SimpleTag, a any) {
+					v.TagLanguageIETF = a.(string)
+				}
 			case "TagString":
-				fallthrough
+				set = func(v *types.SimpleTag, a any) {
+					v.TagString = a.(string)
+				}
 			case "TagDefault":
-				fallthrough
+				set = func(v *types.SimpleTag, a any) {
+					v.TagDefault = a.(uint)
+				}
 			case "TagDefaultBogus":
-				return ebmlProcessor.processField(tag, id, endPosition-ebml.CurrPos, ebml)
+				set = func(v *types.SimpleTag, a any) {
+					v.TagDefaultBogus = a.(string)
+				}
 			case "SimpleTag":
 				wg.Add(1)
 				go func() {
@@ -144,10 +174,16 @@ func processSimpleTag(ebml *ebml.Ebml, endPosition int64) (*types.SimpleTag, err
 					errChan <- err
 					errCount++
 				}()
+				fallthrough
 			default:
 				ebml.CurrPos = endPosition
 			}
-			return nil
+			if set != nil {
+				var data any
+				data, err = getFieldData(id, endPosition-ebml.CurrPos, ebml)
+				set(tag, data)
+			}
+			return err
 		},
 	)
 
