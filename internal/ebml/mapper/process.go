@@ -4,60 +4,49 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
-	"reflect"
 
 	"github.com/arinn1204/gomkv/internal/array"
 	"github.com/arinn1204/gomkv/internal/ebml"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-type ebmlFieldProcessor interface {
-	processField(any, uint32, int64, *ebml.Ebml) error
-}
-
-type ebmlElementProcessor struct{}
-
-func (ebmlElementProcessor) processField(item any, id uint32, elemSize int64, ebml *ebml.Ebml) error {
+func getFieldData(id uint32, elemSize int64, ebml *ebml.Ebml) (any, error) {
 
 	buf := make([]byte, elemSize)
 	n, err := read(ebml, buf)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ebml.CurrPos += int64(n)
 	element := ebml.Specification.Data[id]
 
-	elems := reflect.ValueOf(item).Elem()
-	field := elems.FieldByName(element.Name)
-	return setElementData(buf, element, &field)
+	return getElementData(buf, element)
 }
 
-func setElementData(buf []byte, element *specification.EbmlData, field *reflect.Value) error {
+func getElementData(buf []byte, element *specification.EbmlData) (any, error) {
 	var err error
+	var data any
 	switch element.Type {
 	case "date":
 		fallthrough
 	case "binary":
-		data := getData(buf)
-		field.Set(reflect.ValueOf(data))
+		data = getData(buf)
 	case "uinteger":
-		data := getData(buf)
-		field.Set(reflect.ValueOf(uint(data)))
+		data = getData(buf)
 	case "float":
-		data := getData(buf)
-		value := math.Float32frombits(uint32(data))
-		field.Set(reflect.ValueOf(value))
+		val := getData(buf)
+		data = math.Float32frombits(uint32(val))
 	case "utf-8":
 		fallthrough
 	case "string":
-		field.Set(reflect.ValueOf(string(buf)))
+		data = string(buf)
 	default:
 		err = fmt.Errorf("failed to get data for %v", element.Type)
 	}
 
-	return err
+	return data, err
 }
 
 func getData(buf []byte) uint64 {
