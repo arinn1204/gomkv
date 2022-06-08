@@ -20,7 +20,7 @@ var readUntil func(ebml *ebml.Ebml, end int64, process func(id uint32, endPositi
 
 func init() {
 	GetID = func(ebml *ebml.Ebml, maxCount int) (uint32, error) {
-		return getID(ebml, maxCount)
+		return ebml.GetID(maxCount)
 	}
 
 	read = func(ebml *ebml.Ebml, data []byte) (int, error) {
