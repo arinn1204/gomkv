@@ -8,6 +8,7 @@ import (
 	"github.com/arinn1204/gomkv/internal/array"
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 	"github.com/arinn1204/gomkv/internal/filesystem"
+	"github.com/arinn1204/gomkv/internal/utils"
 )
 
 //Ebml will contain the IoReader as well as the current position of this members stream
@@ -15,6 +16,50 @@ type Ebml struct {
 	File          filesystem.Reader
 	CurrPos       int64
 	Specification *specification.Ebml
+}
+
+type EbmlReader interface {
+	readUntilElementFound(
+		endPosition int64,
+		process func(id uint32, endPosition int64, element *specification.EbmlData) error,
+	) error
+	GetID(maxCount int)
+	GetSpecificationForId(uint32) *specification.EbmlData
+	GetCurrentPosition() int64
+}
+
+func (ebml *Ebml) ReadUntilElementFound(
+	end int64,
+	process func(id uint32, endPosition int64, element *specification.EbmlData) error) error {
+	var err error
+	for ebml.CurrPos < end {
+		id, idErr := ebml.GetID(4)
+
+		if idErr != nil {
+			err = utils.ConcatErr(err, idErr)
+			break
+		}
+
+		size, sizeErr := ebml.GetSize()
+
+		if sizeErr != nil {
+			err = utils.ConcatErr(err, sizeErr)
+			break
+		}
+		err = utils.ConcatErr(err, utils.ConcatErr(idErr, sizeErr))
+
+		element := ebml.Specification.Data[id]
+
+		if element == nil {
+			err = utils.ConcatErr(err, fmt.Errorf("unknown element of id 0x%X", id))
+			ebml.CurrPos += size
+			continue
+		}
+
+		err = utils.ConcatErr(err, process(id, ebml.CurrPos+size, element))
+	}
+
+	return err
 }
 
 //GetID is a function that will return the ID of the following EBML element
