@@ -20,7 +20,7 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 		&ebml,
 		ebml.CurrPos+size,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
-			return process(header, id, endPos-ebml.CurrPos, &ebml)
+			return ebmlProcessor.processField(header, id, endPos-ebml.CurrPos, &ebml)
 		},
 	)
 

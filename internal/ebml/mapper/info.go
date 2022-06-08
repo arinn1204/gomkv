@@ -39,7 +39,7 @@ func processInfo(id uint32, size int64, ebml *ebml.Ebml, element *specification.
 	case "TimestampScale":
 		fallthrough
 	case "DateUTC":
-		if procErr := process(info, id, size, ebml); procErr != nil {
+		if procErr := ebmlProcessor.processField(info, id, size, ebml); procErr != nil {
 			err = utils.ConcatErr(err, procErr)
 		}
 	case "SegmentFamily":

@@ -35,7 +35,7 @@ func createSeek(ebml *ebml.Ebml, endPosition int64) (*types.Seek, error) {
 		ebml,
 		endPosition,
 		func(id uint32, endPos int64, element *specification.EbmlData) error {
-			return process(seek, id, endPos-ebml.CurrPos, ebml)
+			return ebmlProcessor.processField(seek, id, endPos-ebml.CurrPos, ebml)
 		},
 	)
 	return seek, err

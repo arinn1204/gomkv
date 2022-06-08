@@ -81,7 +81,7 @@ func makeTrackEntry(ebml *ebml.Ebml, endPosition int64) (*types.Entry, error) {
 			case "CodecID":
 				fallthrough
 			case "CodecName":
-				err = process(entry, id, endPos-ebml.CurrPos, ebml)
+				err = ebmlProcessor.processField(entry, id, endPos-ebml.CurrPos, ebml)
 			case "Video":
 				var video *types.Video
 				video, err = makeVideoEntry(ebml, endPos)
@@ -119,7 +119,7 @@ func makeVideoEntry(ebml *ebml.Ebml, endPosition int64) (*types.Video, error) {
 			case "DisplayUnit":
 				fallthrough
 			case "AspectRatioType":
-				return process(video, id, endPosition-ebml.CurrPos, ebml)
+				return ebmlProcessor.processField(video, id, endPosition-ebml.CurrPos, ebml)
 			default:
 				ebml.CurrPos = endPosition
 			}
@@ -144,7 +144,7 @@ func makeAudioEntry(ebml *ebml.Ebml, endPosition int64) (*types.Audio, error) {
 			case "Channels":
 				fallthrough
 			case "BitDepth":
-				return process(audio, id, endPosition-ebml.CurrPos, ebml)
+				return ebmlProcessor.processField(audio, id, endPosition-ebml.CurrPos, ebml)
 			default:
 				ebml.CurrPos = endPosition
 			}

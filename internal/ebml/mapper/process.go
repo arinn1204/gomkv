@@ -11,7 +11,13 @@ import (
 	"github.com/arinn1204/gomkv/internal/ebml/specification"
 )
 
-func process[T any](item *T, id uint32, elemSize int64, ebml *ebml.Ebml) error {
+type ebmlFieldProcessor interface {
+	processField(any, uint32, int64, *ebml.Ebml) error
+}
+
+type ebmlElementProcessor struct{}
+
+func (ebmlElementProcessor) processField(item any, id uint32, elemSize int64, ebml *ebml.Ebml) error {
 
 	buf := make([]byte, elemSize)
 	n, err := read(ebml, buf)

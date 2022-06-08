@@ -102,7 +102,7 @@ func processTargets(ebml *ebml.Ebml, endPosition int64) (*types.Target, error) {
 			case "TagEditionUID":
 				fallthrough
 			case "TagAttachmentUID":
-				err = process(target, id, endPosition-ebml.CurrPos, ebml)
+				err = ebmlProcessor.processField(target, id, endPosition-ebml.CurrPos, ebml)
 			default:
 				ebml.CurrPos = endPosition
 			}
@@ -134,7 +134,7 @@ func processSimpleTag(ebml *ebml.Ebml, endPosition int64) (*types.SimpleTag, err
 			case "TagDefault":
 				fallthrough
 			case "TagDefaultBogus":
-				return process(tag, id, endPosition-ebml.CurrPos, ebml)
+				return ebmlProcessor.processField(tag, id, endPosition-ebml.CurrPos, ebml)
 			case "SimpleTag":
 				wg.Add(1)
 				go func() {
