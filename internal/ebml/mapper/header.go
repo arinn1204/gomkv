@@ -57,7 +57,7 @@ func (Header) Map(size int64, ebml ebml.Ebml) (*types.Header, error) {
 			}
 			if set != nil {
 				var data any
-				data, err = getFieldData(id, size, &ebml)
+				data, err = getFieldData(id, endPos-ebml.CurrPos, &ebml)
 				set(header, data)
 			}
 			return err
