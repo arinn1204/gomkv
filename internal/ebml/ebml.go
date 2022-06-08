@@ -19,7 +19,7 @@ type Ebml struct {
 }
 
 type EbmlReader interface {
-	readUntilElementFound(
+	ReadUntilElementFound(
 		endPosition int64,
 		process func(id uint32, endPosition int64, element *specification.EbmlData) error,
 	) error
